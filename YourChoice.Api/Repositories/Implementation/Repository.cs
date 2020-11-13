@@ -65,5 +65,11 @@ namespace YourChoice.Api.Repositories.Implementation
         {
             return await context.SaveChangesAsync() >= 0;
         }
+
+        public async Task<List<TEntity>> AddRange<TEntity>(List<TEntity> entities) where TEntity : BaseEntity
+        {
+            await context.Set<TEntity>().AddRangeAsync(entities);
+            return entities;
+        }
     }
 }

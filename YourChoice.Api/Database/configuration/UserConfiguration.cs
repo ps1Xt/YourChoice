@@ -16,6 +16,7 @@ namespace YourChoice.Api.Database.configuration
             builder.Property(x => x.Password).HasMaxLength(50);
             builder.Property(x => x.Name).HasMaxLength(50);
             builder.Property(x => x.Surname).HasMaxLength(50);
+            builder.Property(x => x.RegistrationDate).HasDefaultValue(DateTime.Now);
             
         }
     }

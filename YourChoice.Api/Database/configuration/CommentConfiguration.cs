@@ -14,6 +14,7 @@ namespace YourChoice.Api.Database.configuration
             builder.Property(x => x.Text).HasMaxLength(500);
             builder.HasOne(x => x.Post).WithMany(x => x.Comments).HasForeignKey(x=>x.PostId).OnDelete(DeleteBehavior.Cascade);
             builder.HasOne(x => x.User).WithMany(x => x.Comments).HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Restrict);
+            builder.Property(x => x.Date).HasDefaultValue(DateTime.Now);
         }
     }
 }

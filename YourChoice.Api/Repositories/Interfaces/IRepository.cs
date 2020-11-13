@@ -17,6 +17,8 @@ namespace YourChoice.Api.Repositories.interfaces
 
         Task<TEntity> Add<TEntity>(TEntity entity) where TEntity : BaseEntity;
 
+        Task<List<TEntity>> AddRange<TEntity>(List<TEntity> entities) where TEntity : BaseEntity;
+
         Task<TEntity> Remove<TEntity>(int id) where TEntity : BaseEntity;
 
         TEntity Update<TEntity>(TEntity entity) where TEntity : BaseEntity;

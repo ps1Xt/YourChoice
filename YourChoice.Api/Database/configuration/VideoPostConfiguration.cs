@@ -8,12 +8,12 @@ using YourChoice.Domain;
 namespace YourChoice.Api.Database.configuration
 {
 
-    class VideoPostConfiguration : IEntityTypeConfiguration<VideoPost>
+    /*class VideoPostConfiguration : IEntityTypeConfiguration<VideoPost>
     {
         public void Configure(EntityTypeBuilder<VideoPost> builder)
         {
             builder.HasMany(x => x.PostParts).WithOne(x => x.Post).OnDelete(DeleteBehavior.Cascade);
         }
-    }
+    }*/
 
 }

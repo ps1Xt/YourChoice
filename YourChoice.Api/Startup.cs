@@ -12,8 +12,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using YourChoice.Api.Database;
+using YourChoice.Api.Mappings;
 using YourChoice.Api.Repositories.Implementation;
 using YourChoice.Api.Repositories.interfaces;
+using YourChoice.Api.Services.Implementation;
+using YourChoice.Api.Services.interfaces;
 
 namespace YourChoice.Api
 {
@@ -31,11 +34,13 @@ namespace YourChoice.Api
         {
             var mapperConfig = new MapperConfiguration(m =>
             {
+                m.AddProfile(new PostProfile());
             });
             services.AddSingleton(mapperConfig.CreateMapper());
             ConfigureSwagger(services);
             services.AddDbContext<DataBaseContext>();
             services.AddScoped<IRepository, Repository>();
+            services.AddScoped<IPostService, PostService>();
             services.AddControllers();
         }
 

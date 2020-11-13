@@ -13,13 +13,13 @@ namespace YourChoice.Api.Database
         public DbSet<User> Users { get; set; }
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Post> Posts { get; set; }
-        public DbSet<VideoPost> VideoPosts { get; set; }
-        public DbSet<PhotoPost> PhotoPosts { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<PostPart> PostParts { get; set; }
         public DbSet<Rating> Ratings { get; set; }
-        public DbSet<VideoPostPart> VideoPostParts { get; set; }
-        public DbSet<PhotoPostPart> PhotoPostParts { get; set; }
+        //  public DbSet<VideoPost> VideoPosts { get; set; }
+        //  public DbSet<PhotoPost> PhotoPosts { get; set; }
+        // public DbSet<VideoPostPart> VideoPostParts { get; set; }
+        // public DbSet<PhotoPostPart> PhotoPostParts { get; set; }
         public DataBaseContext()
         {
             

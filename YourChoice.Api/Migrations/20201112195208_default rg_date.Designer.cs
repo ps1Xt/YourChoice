@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using YourChoice.Api.Database;
 
 namespace YourChoice.Api.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    partial class DataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20201112195208_default rg_date")]
+    partial class defaultrg_date
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -27,9 +29,7 @@ namespace YourChoice.Api.Migrations
                         .UseIdentityColumn();
 
                     b.Property<DateTime>("Date")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2020, 11, 13, 20, 14, 47, 967, DateTimeKind.Local).AddTicks(426));
+                        .HasColumnType("datetime2");
 
                     b.Property<int?>("PostId")
                         .HasColumnType("int");
@@ -89,11 +89,13 @@ namespace YourChoice.Api.Migrations
                         .HasColumnType("bit");
 
                     b.Property<DateTime>("Date")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2020, 11, 13, 20, 14, 47, 952, DateTimeKind.Local).AddTicks(8938));
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
@@ -108,6 +110,8 @@ namespace YourChoice.Api.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Posts");
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("Post");
                 });
 
             modelBuilder.Entity("YourChoice.Domain.PostPart", b =>
@@ -117,11 +121,9 @@ namespace YourChoice.Api.Migrations
                         .HasColumnType("int")
                         .UseIdentityColumn();
 
-                    b.Property<string>("Link")
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("PostId")
-                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .HasMaxLength(150)
@@ -129,9 +131,9 @@ namespace YourChoice.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PostId");
-
                     b.ToTable("PostParts");
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("PostPart");
                 });
 
             modelBuilder.Entity("YourChoice.Domain.Rating", b =>
@@ -196,7 +198,7 @@ namespace YourChoice.Api.Migrations
                     b.Property<DateTime>("RegistrationDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2020, 11, 13, 20, 14, 47, 976, DateTimeKind.Local).AddTicks(6043));
+                        .HasDefaultValue(new DateTime(2020, 11, 12, 21, 52, 7, 402, DateTimeKind.Local).AddTicks(607));
 
                     b.Property<string>("Surname")
                         .HasMaxLength(50)
@@ -209,6 +211,51 @@ namespace YourChoice.Api.Migrations
                         .HasFilter("[Login] IS NOT NULL");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("YourChoice.Domain.PhotoPost", b =>
+                {
+                    b.HasBaseType("YourChoice.Domain.Post");
+
+                    b.HasDiscriminator().HasValue("PhotoPost");
+                });
+
+            modelBuilder.Entity("YourChoice.Domain.VideoPost", b =>
+                {
+                    b.HasBaseType("YourChoice.Domain.Post");
+
+                    b.HasDiscriminator().HasValue("VideoPost");
+                });
+
+            modelBuilder.Entity("YourChoice.Domain.PhotoPostPart", b =>
+                {
+                    b.HasBaseType("YourChoice.Domain.PostPart");
+
+                    b.Property<string>("Link")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("PhotoPostId")
+                        .HasColumnType("int");
+
+                    b.HasIndex("PhotoPostId");
+
+                    b.HasDiscriminator().HasValue("PhotoPostPart");
+                });
+
+            modelBuilder.Entity("YourChoice.Domain.VideoPostPart", b =>
+                {
+                    b.HasBaseType("YourChoice.Domain.PostPart");
+
+                    b.Property<string>("Link")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("VideoPostPart_Link");
+
+                    b.Property<int?>("VideoPostId")
+                        .HasColumnType("int");
+
+                    b.HasIndex("VideoPostId");
+
+                    b.HasDiscriminator().HasValue("VideoPostPart");
                 });
 
             modelBuilder.Entity("YourChoice.Domain.Comment", b =>
@@ -250,16 +297,6 @@ namespace YourChoice.Api.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("YourChoice.Domain.PostPart", b =>
-                {
-                    b.HasOne("YourChoice.Domain.Post", "Post")
-                        .WithMany("PostParts")
-                        .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("Post");
-                });
-
             modelBuilder.Entity("YourChoice.Domain.Rating", b =>
                 {
                     b.HasOne("YourChoice.Domain.Post", "Post")
@@ -294,11 +331,27 @@ namespace YourChoice.Api.Migrations
                     b.Navigation("Who");
                 });
 
+            modelBuilder.Entity("YourChoice.Domain.PhotoPostPart", b =>
+                {
+                    b.HasOne("YourChoice.Domain.PhotoPost", "Post")
+                        .WithMany("PostParts")
+                        .HasForeignKey("PhotoPostId");
+
+                    b.Navigation("Post");
+                });
+
+            modelBuilder.Entity("YourChoice.Domain.VideoPostPart", b =>
+                {
+                    b.HasOne("YourChoice.Domain.VideoPost", "Post")
+                        .WithMany("PostParts")
+                        .HasForeignKey("VideoPostId");
+
+                    b.Navigation("Post");
+                });
+
             modelBuilder.Entity("YourChoice.Domain.Post", b =>
                 {
                     b.Navigation("Comments");
-
-                    b.Navigation("PostParts");
 
                     b.Navigation("Rating");
                 });
@@ -316,6 +369,16 @@ namespace YourChoice.Api.Migrations
                     b.Navigation("Subscribers");
 
                     b.Navigation("Subscriptions");
+                });
+
+            modelBuilder.Entity("YourChoice.Domain.PhotoPost", b =>
+                {
+                    b.Navigation("PostParts");
+                });
+
+            modelBuilder.Entity("YourChoice.Domain.VideoPost", b =>
+                {
+                    b.Navigation("PostParts");
                 });
 #pragma warning restore 612, 618
         }
