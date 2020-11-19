@@ -12,11 +12,13 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using YourChoice.Api.Database;
+using YourChoice.Api.Infrastructure.Extensions;
 using YourChoice.Api.Mappings;
 using YourChoice.Api.Repositories.Implementation;
 using YourChoice.Api.Repositories.interfaces;
 using YourChoice.Api.Services.Implementation;
 using YourChoice.Api.Services.interfaces;
+using YourChoice.Domain.Auth;
 
 namespace YourChoice.Api
 {
@@ -36,6 +38,13 @@ namespace YourChoice.Api
             {
                 m.AddProfile(new PostProfile());
             });
+            services.AddIdentity<User, Role>()
+                .AddEntityFrameworkStores<DataBaseContext>();
+
+
+            var authOptions = services.ConfigureAuthOptions(Configuration);
+            services.AddJwtAuthentication(authOptions);
+
             services.AddSingleton(mapperConfig.CreateMapper());
             ConfigureSwagger(services);
             services.AddDbContext<DataBaseContext>();
@@ -67,6 +76,7 @@ namespace YourChoice.Api
             {
                 endpoints.MapControllers();
             });
+            
         }
         private void ConfigureSwagger(IServiceCollection services)
         {

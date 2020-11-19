@@ -6,11 +6,13 @@ using YourChoice.Domain;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using YourChoice.Api.Database.configuration;
+using YourChoice.Domain.Auth;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+
 namespace YourChoice.Api.Database
 {
-    public class DataBaseContext : DbContext
+    public class DataBaseContext : IdentityDbContext<User, Role, int, UserClaim, UserRole, UserLogin, RoleClaim, UserToken>
     {
-        public DbSet<User> Users { get; set; }
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Post> Posts { get; set; }
         public DbSet<Message> Messages { get; set; }
@@ -30,6 +32,7 @@ namespace YourChoice.Api.Database
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfiguration(new SubscriptionConfiguration());
             modelBuilder.ApplyConfiguration(new PostConfiguration());
             modelBuilder.ApplyConfiguration(new PostPartConfiguration());

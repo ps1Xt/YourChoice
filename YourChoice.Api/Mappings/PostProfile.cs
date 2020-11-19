@@ -13,10 +13,15 @@ namespace YourChoice.Api.Mappings
     {
         public PostProfile()
         {
-            CreateMap<Post, FullPostDto>();
+            CreateMap<Post, FullPostDto>()
+                .ForMember(dest => dest.PartsDto, opt => opt.MapFrom(src => src.PostParts));
             CreateMap<PostPart, PostPartDto>();
-            CreateMap<CreatePostDto, Post>();
+            CreateMap<CreatePostDto, Post>()
+                .ForMember(dest => dest.PostParts, opt => opt.MapFrom(src => src.PartsDto));
             CreateMap<PostPartDto, PostPart>();
+            CreateMap<Post, PostCardDto>()
+                .ForMember(dest => dest.Likes, opt => opt.MapFrom(src => src.Rating.Count()));
+
         }
     }
 

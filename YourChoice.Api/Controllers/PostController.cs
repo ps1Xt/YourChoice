@@ -25,28 +25,44 @@ namespace YourChoice.Api.Controllers
             this.mapper = mapper;
         }
         [HttpGet("{id}")]
+        [ApiExceptionFilter]
         public async Task<IActionResult> GetPost(int id)
         {
             var post = await service.GetPost(id);
+
             var result = mapper.Map<FullPostDto>(post);
+
             result = mapper.Map<FullPostDto>(post);
+
             result.PartsDto = mapper.Map<List<PostPartDto>>(post.PostParts);
-            result.UserName = post.User.Login;
+
+            result.UserName = post.User.UserName;
+
             return Ok(result);
         }
+        /*[HttpGet("{order}/page/{page}")]
+        [ApiExceptionFilter]
+        public async Task<IActionResult> GetPostsPage(int page, string order)
+        {
+            var posts = await service.GetPagedPosts(page, order);
 
+            List<PostCardDto> result = mapper.Map<List<PostCardDto>>(posts);
+            //TODO make property not null and need to add Id ...
+            return Ok(result);
+
+        }*/
 
         [HttpPost]
         [ApiExceptionFilter]
-        public async Task<IActionResult> CreatePhotoPost(CreatePostDto postDto)
+        public async Task<IActionResult> CreatePost(CreatePostDto postDto)
         {
-            var post = await service.CreatePhotoPost(postDto);
+            var post = await service.CreatePost(postDto);
 
             FullPostDto result = new FullPostDto();
             
             result = mapper.Map<FullPostDto>(post);
-            result.PartsDto = mapper.Map<List<PostPartDto>>(post.PostParts);
-            result.UserName = post.User.Login;
+            //result.PartsDto = mapper.Map<List<PostPartDto>>(post.PostParts);
+            //result.UserName = post.User.Login;
             return CreatedAtAction(nameof(GetPost), new {id = post.Id }, result);
         }
         

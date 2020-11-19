@@ -9,9 +9,9 @@ namespace YourChoice.Api.Services.interfaces
     public interface IPostService
     {
 
-        public Task<Post> CreatePhotoPost(CreatePostDto postDto);
+        public Task<Post> CreatePost(CreatePostDto postDto);
 
-        public Task<PostCardDto> GetPostGards(int number);
+//        public Task<List<Post>> GetPagedPosts(int page, string order);
 
         public Task<Post> GetPost(int id);
 

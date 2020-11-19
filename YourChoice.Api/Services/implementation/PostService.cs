@@ -24,7 +24,7 @@ namespace YourChoice.Api.Services.Implementation
             this.mapper = mapper;
         }
 
-        public async Task<Post> CreatePhotoPost(CreatePostDto postDto)
+        public async Task<Post> CreatePost(CreatePostDto postDto)
         {
             List<PostPartDto> partsDto = postDto.PartsDto;
 
@@ -35,11 +35,10 @@ namespace YourChoice.Api.Services.Implementation
 
             Post post = new Post();
             post = mapper.Map<Post>(postDto);
-            post.Date = DateTime.Now;
-            post.User = await repository.GetById<User>(post.UserId);
-            post.PostParts = mapper.Map<List<PostPart>>(postDto.PartsDto);
+            //  post.User = await repository.GetById<User>(post.UserId);
+            // post.PostParts = mapper.Map<List<PostPart>>(postDto.PartsDto);
 
-                
+
             await repository.Add<Post>(post);
             await repository.SaveAll();
             return post;
@@ -49,16 +48,12 @@ namespace YourChoice.Api.Services.Implementation
         public async Task<Post> GetPost(int id)
         {
             var post = await repository.GetById<Post>(id);
-            if(post == null)
+            if (post == null)
             {
                 throw new NotFoundException("Post not found");
             }
             return post;
         }
 
-        public Task<PostCardDto> GetPostGards(int number)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

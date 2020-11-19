@@ -23,6 +23,14 @@ namespace YourChoice.Api.Repositories.interfaces
 
         TEntity Update<TEntity>(TEntity entity) where TEntity : BaseEntity;
 
+        Task<List<TEntity>> GetPagedItems<TEntity>(int startIndex, int number) where TEntity : BaseEntity;
+
+        Task<List<TEntity>> GetPagedItems<TEntity, Tkey>(int startIndex, int number, Expression<Func<TEntity, Tkey>> order)
+            where TEntity : BaseEntity;
+
+        public Task<List<TEntity>> GetPagedItems<TEntity>(int startIndex, int number, Expression<Func<TEntity, bool>> predicate)
+            where TEntity : BaseEntity;
+
         Task<bool> SaveAll();
     }
 }

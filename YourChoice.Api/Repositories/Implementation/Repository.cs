@@ -19,7 +19,6 @@ namespace YourChoice.Api.Repositories.Implementation
         public Repository(DataBaseContext context)
         {
             this.context = context;
-
         }
 
         public async Task<TEntity> GetById<TEntity>(int id) where TEntity : BaseEntity
@@ -70,6 +69,27 @@ namespace YourChoice.Api.Repositories.Implementation
         {
             await context.Set<TEntity>().AddRangeAsync(entities);
             return entities;
+        }
+
+        public async Task<List<TEntity>> GetPagedItems<TEntity, Tkey>(int startIndex, int number, Expression<Func<TEntity, Tkey>> order) 
+            where TEntity : BaseEntity
+        {
+            var result =  await context.Set<TEntity>().OrderBy(order).Skip((startIndex - 1) * number).Take(number).ToListAsync();
+
+            return result;
+        }
+        public async Task<List<TEntity>> GetPagedItems<TEntity>(int startIndex, int number) where TEntity : BaseEntity
+        {
+            var result = await context.Set<TEntity>().Skip((startIndex - 1) * number).Take(number).ToListAsync();
+
+            return result;
+        }
+        public async Task<List<TEntity>> GetPagedItems<TEntity>(int startIndex, int number, Expression<Func<TEntity, bool>> predicate)
+            where TEntity : BaseEntity
+        {
+            var result = await context.Set<TEntity>().Skip((startIndex - 1) * number).Take(number).ToListAsync();
+
+            return result;
         }
     }
 }
