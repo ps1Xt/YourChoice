@@ -1,13 +1,17 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using YourChoice.Api.Dtos.Post;
 using YourChoice.Api.Exceptions.Post;
+using YourChoice.Api.Infrastructure.Models;
 using YourChoice.Api.Repositories.interfaces;
 using YourChoice.Api.Services.interfaces;
 using YourChoice.Domain;
+using YourChoice.Domain.Auth;
 using YourChoice.Exceptions;
 
 namespace YourChoice.Api.Services.Implementation
@@ -17,41 +21,128 @@ namespace YourChoice.Api.Services.Implementation
         private readonly IRepository repository;
 
         private readonly IMapper mapper;
+        private readonly IPhotoService photoService;
 
-        public PostService(IRepository repository, IMapper mapper)
+        public PostService(IRepository repository, IMapper mapper, IPhotoService photoService)
         {
             this.repository = repository;
             this.mapper = mapper;
+            this.photoService = photoService;
         }
 
-        public async Task<Post> CreatePost(CreatePostDto postDto)
+        public async Task<Post> CreatePost(IFormCollection form, User user)
         {
-            List<PostPartDto> partsDto = postDto.PartsDto;
+            Post post = new Post();
+            //post.Title = form["title"];
+            post.Description = form["description"];
+            post.UserId = user.Id;
 
-            if (postDto.Size != partsDto.Count)
+            List<PostPart> postParts = new List<PostPart>();
+            List<Task<(string, string)>> tasks = new List<Task<(string, string)>>();
+            var files = form.Files;
+            post.Size = files.Count - 1;
+            var streams = new List<(Stream, string)>();
+            foreach (var file in files)
             {
-                throw new SizeException("The size does not correspond to the number of parts");
+                streams.Add((file.OpenReadStream(), file.FileName));
             }
 
-            Post post = new Post();
-            post = mapper.Map<Post>(postDto);
-            //  post.User = await repository.GetById<User>(post.UserId);
-            // post.PostParts = mapper.Map<List<PostPart>>(postDto.PartsDto);
+            foreach (var (stream, name) in streams)
+            {
+                tasks.Add(Task.Run<(string, string)>(() => photoService.UploadPhoto(stream, name)));
+            }
+            await Task.WhenAll(tasks);
+            /*     foreach (var task in tasks)
+                 {
+                     var result = task.Result;
+                     postParts.Add(new PostPart
+                     {
+                         Link = result.Item1,
+                         Title = result.Item2,
+                     });
+                 }*/
+            var title = tasks[0].Result.Item2;
 
+            var logo = tasks[0].Result.Item1;
+
+
+            post.Title = title;
+
+            post.Logo = logo;
+
+            for (int i = 1; i < tasks.Count; i++)
+            {
+                postParts.Add(new PostPart
+                {
+                    Link = tasks[i].Result.Item1,
+                    Title = tasks[i].Result.Item2
+                });
+            }
+            post.PostParts = postParts;
 
             await repository.Add<Post>(post);
+
             await repository.SaveAll();
+
             return post;
         }
 
+        public async Task<PaginatedResult<PostCardDto>> GetMainPageFavorites(MainPageRequest pagedRequest, string userName)
+        {
+            var user = (await repository.Find<User>(x => x.UserName == userName)).SingleOrDefault();
+
+            var mainPage = await repository.GetPagedDataWithAdditionalPredicate<Post, PostCardDto>
+               (pagedRequest, x => x.Favorites.Where(x => x.Value == true).Select(x => x.UserId).Contains(user.Id));
+
+            return mainPage;
+        }
+
+        public async Task<PaginatedResult<PostCardDto>> GetMainPageHome(MainPageRequest pagedRequest, string userName)
+        {
+            var user = (await repository.Find<User>(x => x.UserName == userName)).SingleOrDefault();
+
+            var mainPage = await repository.GetPagedData<Post, PostCardDto>(pagedRequest);
+
+            return mainPage;
+        }
+
+        public async Task<PaginatedResult<PostCardDto>> GetMainPageMyPosts(MainPageRequest pagedRequest, string userName)
+        {
+            var user = (await repository.Find<User>(x => x.UserName == userName)).SingleOrDefault();
+
+            var mainPage = await repository.GetPagedDataWithAdditionalPredicate<Post, PostCardDto>
+               (pagedRequest, x => x.UserId == user.Id);
+
+            return mainPage;
+        }
+
+        public async Task<PaginatedResult<PostCardDto>> GetMainPageSubscriptions(MainPageRequest pagedRequest, string userName)
+        {
+            var user = (await repository.Find<User>(x => x.UserName == userName)).SingleOrDefault();
+
+            var mainPage = await repository.GetPagedDataWithAdditionalPredicate<Post, PostCardDto>
+                (pagedRequest, x => x.User.Subscribers.Where(x => x.Value == true).Select(x => x.WhoId).Any(y => y == user.Id));
+
+            return mainPage;
+        }
+
+        //test method
+        public async Task<PaginatedResult<PostGridRowDto>> GetPage(PagedRequest pagedRequest)
+        {
+            var pagedPosts = await repository.GetPagedData<Post, PostGridRowDto>(pagedRequest);
+
+            return pagedPosts;
+        }
 
         public async Task<Post> GetPost(int id)
         {
             var post = await repository.GetById<Post>(id);
+
             if (post == null)
             {
                 throw new NotFoundException("Post not found");
             }
+
             return post;
         }
 

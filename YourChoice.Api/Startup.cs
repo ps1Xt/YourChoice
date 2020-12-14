@@ -6,6 +6,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -16,6 +17,7 @@ using YourChoice.Api.Infrastructure.Extensions;
 using YourChoice.Api.Mappings;
 using YourChoice.Api.Repositories.Implementation;
 using YourChoice.Api.Repositories.interfaces;
+using YourChoice.Api.Services.implementation;
 using YourChoice.Api.Services.Implementation;
 using YourChoice.Api.Services.interfaces;
 using YourChoice.Domain.Auth;
@@ -37,11 +39,13 @@ namespace YourChoice.Api
             var mapperConfig = new MapperConfiguration(m =>
             {
                 m.AddProfile(new PostProfile());
+                m.AddProfile(new CommentProfile());
+                m.AddProfile(new MessageProfile());
             });
             services.AddIdentity<User, Role>()
                 .AddEntityFrameworkStores<DataBaseContext>();
 
-
+            
             var authOptions = services.ConfigureAuthOptions(Configuration);
             services.AddJwtAuthentication(authOptions);
 
@@ -50,7 +54,30 @@ namespace YourChoice.Api
             services.AddDbContext<DataBaseContext>();
             services.AddScoped<IRepository, Repository>();
             services.AddScoped<IPostService, PostService>();
-            services.AddControllers();
+            services.AddScoped<IPhotoService, PhotoService>();
+            services.AddScoped<ICommentService, CommentService>();
+            services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<IFavoriteService, FavoriteService>();
+            services.AddScoped<ISubscriptionService, SubscriptionService>();
+            services.AddScoped<IRatingService, RatingService>();
+            services.AddScoped<IAccountService, AccountService>();
+            services.AddCors(options =>
+            {
+                // this defines a CORS policy called "default"
+                options.AddPolicy("default", policy =>
+                {
+                    policy.WithOrigins("http://localhost:3000")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowAnyOrigin()
+                        .WithExposedHeaders("Location");
+                });
+            });
+
+            services.AddControllers(options =>
+            {
+                options.Filters.Add(new AuthorizeFilter());
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -63,13 +90,25 @@ namespace YourChoice.Api
 
             app.UseRouting();
 
+            app.UseCors("default");
+
+/*            app.UseCors(configurePolicy => configurePolicy
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .WithExposedHeaders("Location"));*/
+
+            app.UseAuthentication();
+
             app.UseAuthorization();
 
             app.UseSwagger();
+
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json",
                 "Swagger API");
+                
             });
 
             app.UseEndpoints(endpoints =>

@@ -15,9 +15,9 @@ namespace YourChoice.Api.Dtos.Post
 
         public string Description { get; set; }
 
-        public string Likes { get; set; }
+        public double AvgRating { get; set; }
 
-        public string Login { get; set; }
+        public string UserName { get; set; }
 
         public string Logo { get; set; }
     }

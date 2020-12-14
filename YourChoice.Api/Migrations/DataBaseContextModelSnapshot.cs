@@ -98,10 +98,6 @@ namespace YourChoice.Api.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<string>("Name")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -120,16 +116,10 @@ namespace YourChoice.Api.Migrations
                         .HasColumnType("bit");
 
                     b.Property<DateTime>("RegistrationDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2020, 11, 19, 20, 2, 23, 152, DateTimeKind.Local).AddTicks(4938));
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Surname")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
@@ -237,9 +227,7 @@ namespace YourChoice.Api.Migrations
                         .UseIdentityColumn();
 
                     b.Property<DateTime>("Date")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2020, 11, 19, 20, 2, 23, 149, DateTimeKind.Local).AddTicks(9633));
+                        .HasColumnType("datetime2");
 
                     b.Property<int?>("PostId")
                         .HasColumnType("int");
@@ -260,6 +248,24 @@ namespace YourChoice.Api.Migrations
                     b.ToTable("Comments");
                 });
 
+            modelBuilder.Entity("YourChoice.Domain.Favorite", b =>
+                {
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("PostId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Value")
+                        .HasColumnType("bit");
+
+                    b.HasKey("UserId", "PostId");
+
+                    b.HasIndex("PostId");
+
+                    b.ToTable("Favorite");
+                });
+
             modelBuilder.Entity("YourChoice.Domain.Message", b =>
                 {
                     b.Property<int>("Id")
@@ -269,6 +275,9 @@ namespace YourChoice.Api.Migrations
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Text")
                         .HasMaxLength(500)
@@ -295,19 +304,17 @@ namespace YourChoice.Api.Migrations
                         .HasColumnType("int")
                         .UseIdentityColumn();
 
-                    b.Property<bool>("CanBePublished")
-                        .HasColumnType("bit");
-
                     b.Property<DateTime>("Date")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2020, 11, 19, 20, 2, 23, 138, DateTimeKind.Local).AddTicks(2098));
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Logo")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Size")
+                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .HasMaxLength(100)
@@ -333,7 +340,7 @@ namespace YourChoice.Api.Migrations
                     b.Property<string>("Link")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("PostId")
+                    b.Property<int>("PostId")
                         .HasColumnType("int");
 
                     b.Property<string>("Title")
@@ -349,25 +356,18 @@ namespace YourChoice.Api.Migrations
 
             modelBuilder.Entity("YourChoice.Domain.Rating", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .UseIdentityColumn();
-
-                    b.Property<int?>("PostId")
+                    b.Property<int?>("UserId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("UserId")
+                    b.Property<int?>("PostId")
                         .HasColumnType("int");
 
                     b.Property<int>("Value")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("UserId", "PostId");
 
                     b.HasIndex("PostId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Ratings");
                 });
@@ -379,6 +379,9 @@ namespace YourChoice.Api.Migrations
 
                     b.Property<int?>("WhoId")
                         .HasColumnType("int");
+
+                    b.Property<bool>("Value")
+                        .HasColumnType("bit");
 
                     b.HasKey("ToWhomId", "WhoId");
 
@@ -455,6 +458,25 @@ namespace YourChoice.Api.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("YourChoice.Domain.Favorite", b =>
+                {
+                    b.HasOne("YourChoice.Domain.Post", "Post")
+                        .WithMany("Favorites")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("YourChoice.Domain.Auth.User", "User")
+                        .WithMany("Favorites")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("YourChoice.Domain.Message", b =>
                 {
                     b.HasOne("YourChoice.Domain.Auth.User", "User")
@@ -482,7 +504,8 @@ namespace YourChoice.Api.Migrations
                     b.HasOne("YourChoice.Domain.Post", "Post")
                         .WithMany("PostParts")
                         .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Post");
                 });
@@ -490,12 +513,16 @@ namespace YourChoice.Api.Migrations
             modelBuilder.Entity("YourChoice.Domain.Rating", b =>
                 {
                     b.HasOne("YourChoice.Domain.Post", "Post")
-                        .WithMany("Rating")
-                        .HasForeignKey("PostId");
+                        .WithMany("Ratings")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("YourChoice.Domain.Auth.User", "User")
-                        .WithMany("Rating")
-                        .HasForeignKey("UserId");
+                        .WithMany("Ratings")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Post");
 
@@ -525,11 +552,13 @@ namespace YourChoice.Api.Migrations
                 {
                     b.Navigation("Comments");
 
+                    b.Navigation("Favorites");
+
                     b.Navigation("Messages");
 
                     b.Navigation("Posts");
 
-                    b.Navigation("Rating");
+                    b.Navigation("Ratings");
 
                     b.Navigation("Subscribers");
 
@@ -540,9 +569,11 @@ namespace YourChoice.Api.Migrations
                 {
                     b.Navigation("Comments");
 
+                    b.Navigation("Favorites");
+
                     b.Navigation("PostParts");
 
-                    b.Navigation("Rating");
+                    b.Navigation("Ratings");
                 });
 #pragma warning restore 612, 618
         }

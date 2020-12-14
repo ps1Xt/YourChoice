@@ -13,7 +13,6 @@ namespace YourChoice.Api.Database.configuration
         {
             builder.Property(x => x.Title).HasMaxLength(100);
             builder.HasOne(x => x.User).WithMany(x => x.Posts).OnDelete(DeleteBehavior.Restrict);
-            builder.Property(x => x.Date).HasDefaultValue(DateTime.Now);
             builder.HasMany(x => x.PostParts).WithOne(x => x.Post).OnDelete(DeleteBehavior.Cascade);
         }
     }

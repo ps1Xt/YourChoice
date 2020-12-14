@@ -12,15 +12,15 @@ namespace YourChoice.Api.Dtos.Comment
         public string UserName { get; set; }
 
         [Required]
-        public string UserId { get; set; }
+        public int UserId { get; set; }
 
         [Required]
-        public string Id { get; set; }
+        public int Id { get; set; }
 
         [Required]
         public string Text { get; set; }
 
-        public DateTime Date { get; set; }
+        public string Date { get; set; }
 
 
     }

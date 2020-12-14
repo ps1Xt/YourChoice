@@ -16,9 +16,6 @@ namespace YourChoice.Api.Dtos.Post
         [Required]
         public int Size { get; set; }
 
-        [Required]
-        public int UserId { get; set; }
-
         public string Description { get; set; }
 
         [Required(ErrorMessage = "Please append logo")]

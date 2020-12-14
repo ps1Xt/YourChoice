@@ -9,18 +9,28 @@ namespace YourChoice.Api.Dtos.Post
 {
     public class FullPostDto
     {
-        public string Id { get; set; }
+        public int Id { get; set; }
 
         public string Title { get; set; }
 
         public string UserName { get; set; }
 
-        public string UserId { get; set; }
+        public int UserId { get; set; }
 
-        public DateTime Date { get; set; }
+        public string Description { get; set; }
+
+        public bool isInFavorites { get; set; }
+
+        public int Size { get; set; }
+
+        public bool isSubscribed { get; set; }
+
+        public double AvgRating { get; set; }
+
+        public string Date { get; set; }
+
+        public List<PostPartDto> PostParts { get; set; }
 
         public List<CommentDto> Comments { get; set; }
-
-        public List<PostPartDto> PartsDto { get; set; }
     }
 }

@@ -18,10 +18,6 @@ namespace YourChoice.Api.Database
         public DbSet<Message> Messages { get; set; }
         public DbSet<PostPart> PostParts { get; set; }
         public DbSet<Rating> Ratings { get; set; }
-        //  public DbSet<VideoPost> VideoPosts { get; set; }
-        //  public DbSet<PhotoPost> PhotoPosts { get; set; }
-        // public DbSet<VideoPostPart> VideoPostParts { get; set; }
-        // public DbSet<PhotoPostPart> PhotoPostParts { get; set; }
         public DataBaseContext()
         {
             
@@ -39,7 +35,8 @@ namespace YourChoice.Api.Database
             modelBuilder.ApplyConfiguration(new CommentConfiguration());
             modelBuilder.ApplyConfiguration(new MessageConfiguration());
             modelBuilder.ApplyConfiguration(new UserConfiguration());
-
+            modelBuilder.ApplyConfiguration(new FavoritesConfiguration());
+            modelBuilder.ApplyConfiguration(new RatingConfiguration());
 
         }
         
