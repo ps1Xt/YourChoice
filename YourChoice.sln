@@ -5,8 +5,6 @@ VisualStudioVersion = 16.0.30621.155
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YourChoice.Api", "YourChoice.Api\YourChoice.Api.csproj", "{A434BF83-D52A-4CE0-A68B-BBA4BE470B2C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YourChoice.Domain", "..\..\Internship\Lesson 5 classes\ConsoleApp1\YourChoice.Domain\YourChoice.Domain.csproj", "{046D5595-EC6A-4001-86B9-D9880A69DE05}"
-EndProject
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "YourChoice.React", "YourChoice.React\", "{571D21B4-E806-4EB1-BB42-F1673C24DDB3}"
 	ProjectSection(WebsiteProperties) = preProject
 		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
@@ -28,6 +26,8 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "YourChoice.React", "YourCho
 		SlnRelativePath = "YourChoice.React\"
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YourChoice.Domain", "YourChoice.Domain\YourChoice.Domain.csproj", "{14659674-CA71-4FFB-A2F9-94A0B9DE028E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,14 +38,14 @@ Global
 		{A434BF83-D52A-4CE0-A68B-BBA4BE470B2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A434BF83-D52A-4CE0-A68B-BBA4BE470B2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A434BF83-D52A-4CE0-A68B-BBA4BE470B2C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{046D5595-EC6A-4001-86B9-D9880A69DE05}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{046D5595-EC6A-4001-86B9-D9880A69DE05}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{046D5595-EC6A-4001-86B9-D9880A69DE05}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{046D5595-EC6A-4001-86B9-D9880A69DE05}.Release|Any CPU.Build.0 = Release|Any CPU
 		{571D21B4-E806-4EB1-BB42-F1673C24DDB3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{571D21B4-E806-4EB1-BB42-F1673C24DDB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{571D21B4-E806-4EB1-BB42-F1673C24DDB3}.Release|Any CPU.ActiveCfg = Debug|Any CPU
 		{571D21B4-E806-4EB1-BB42-F1673C24DDB3}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{14659674-CA71-4FFB-A2F9-94A0B9DE028E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14659674-CA71-4FFB-A2F9-94A0B9DE028E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14659674-CA71-4FFB-A2F9-94A0B9DE028E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14659674-CA71-4FFB-A2F9-94A0B9DE028E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

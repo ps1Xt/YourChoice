@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Internship\Lesson 5 classes\ConsoleApp1\YourChoice.Domain\YourChoice.Domain.csproj" />
+    <ProjectReference Include="..\YourChoice.Domain\YourChoice.Domain.csproj" />
   </ItemGroup>
 
 
