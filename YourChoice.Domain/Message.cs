@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-
+using YourChoice.Domain.Auth;
 namespace YourChoice.Domain
 {
     public class Message : BaseEntity
@@ -11,5 +11,11 @@ namespace YourChoice.Domain
         public string Title { get; set; }
         public string Text { get; set; }
         public DateTime Date { get; set; }
+        public bool IsRead { get; set; }
+
+        public Message()
+        {
+            Date = DateTime.Now;
+        }
     }
 }
