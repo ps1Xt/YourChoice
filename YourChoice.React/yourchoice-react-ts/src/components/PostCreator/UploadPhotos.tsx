@@ -1,6 +1,6 @@
 import { Grid } from '@material-ui/core'
 import React from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { setUpdate } from '../../store/actions/_createPost'
 import DragAndDrop from './DragNDrop'
 export const UploadPhotos = (props: any) => {
@@ -9,6 +9,7 @@ export const UploadPhotos = (props: any) => {
         postPartNames,
         postPartSrc,
         postPartFiles,
+        text
     } = props;
     let dispatch = useDispatch()
     const filesHandler = (_files: File[]) => {
@@ -41,7 +42,7 @@ export const UploadPhotos = (props: any) => {
             <Grid container justify="center">
                 <Grid item xs={10}>
 
-                    <DragAndDrop filesHandler={filesHandler}></DragAndDrop>
+                    <DragAndDrop filesHandler={filesHandler} text={text}></DragAndDrop>
                 </Grid>
             </Grid>
         </div>

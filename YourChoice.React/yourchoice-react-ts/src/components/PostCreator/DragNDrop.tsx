@@ -5,8 +5,7 @@ const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         dropZone: {
             width: '100%',
-            height: '100px',
-            padding: '25px',
+            height: '150px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -28,12 +27,15 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
+interface DragAndDropProps {
+    filesHandler: (_files: File[]) => void,
+    text?: string
+}
 
-
-export const DragAndDrop = (props: any) => {
+export const DragAndDrop = (props: DragAndDropProps) => {
     const classes = useStyles();
     const inputRef = useRef<HTMLInputElement>(null);
-    const { filesHandler } = props
+    const { filesHandler, text } = props
 
     let [dropZone, setDropZone] = useState(`${classes.dropZone}`);
     const dragOverHandler = (e: any) => {
@@ -70,7 +72,7 @@ export const DragAndDrop = (props: any) => {
             onDrop={dropHandler}
             onDragEnd={dragLeaveHandler}
             onClick={clickHandler}>
-            <h2>Drop photo here or click to upload</h2>
+            <h2>{text}</h2>
             <input type="file" name="photoFile" style={{ display: 'none' }} ref={inputRef} onChange={inputChangeHandler} />
         </div>
 

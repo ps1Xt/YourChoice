@@ -12,9 +12,11 @@ export const readMessages = async (): Promise<boolean>=> {
 
     });
 
-    let json =  await response.json();
+    if(!response.ok){
+        throw Error("Failed to read messages")
+    }
 
-    let result = json.result;
+    let result =  await response.json();
 
     return result;
 }

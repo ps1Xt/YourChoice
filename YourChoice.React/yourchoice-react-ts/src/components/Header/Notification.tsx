@@ -5,7 +5,7 @@ import Paper from '@material-ui/core/Paper';
 import Popper from '@material-ui/core/Popper';
 import MenuList from '@material-ui/core/MenuList';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
-import { Badge, Box,IconButton, List, ListItem, ListItemText, ListSubheader } from '@material-ui/core';
+import { Badge, Box, IconButton, List, ListItem, ListItemText, ListSubheader } from '@material-ui/core';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import Scrollbars from 'react-custom-scrollbars';
 import CircularProgress from '@material-ui/core/CircularProgress';
@@ -13,6 +13,7 @@ import { Message } from '../../api/notification/Models/Message';
 import { getCountOfNewMessages } from '../../api/notification/GetCountOfNewMessages';
 import { getMessages } from '../../api/notification/GetMessages';
 import { readMessages } from '../../api/notification/ReadMessages';
+import { ErrorBox } from '../Common/ErrorBox';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
@@ -61,6 +62,7 @@ export default function Notification() {
   const [messages, setMessages] = useState(new Array<Message>())
   const anchorRef = React.useRef<HTMLButtonElement>(null);
   const [isLoading, setIsoLoading] = useState(true);
+  const [error, setError] = useState(false)
   const [newMessages, setNewMessages] = useState<number>();
 
   useEffect(() => {
@@ -69,19 +71,19 @@ export default function Notification() {
     let timerId = setInterval(() => {
       getNewMessages();
     }, 5000)
-    return function cleanup () {
+    return function cleanup() {
       clearInterval(timerId);
     };
   }, []);
 
   const getNewMessages = async () => {
-    try{
+    try {
       let NewMessages = await getCountOfNewMessages();
       setNewMessages(NewMessages.number)
 
     }
-    catch{
-      
+    catch {
+
     }
   }
 
@@ -102,13 +104,22 @@ export default function Notification() {
   };
 
   const messagesHandler = async () => {
-    let messages = await getMessages()
-    setMessages(messages)
-    setIsoLoading(false)
+    try {
+      setError(false)
+      setIsoLoading(true)
+      let messages = await getMessages()
+      setMessages(messages)
+    }
+    catch {
+      setError(true)
+    }
+    finally {
+      setIsoLoading(false)
+    }
   }
 
   const readMessagesHandler = async () => {
-    let result = await readMessages();
+    await readMessages();
     setNewMessages(0);
   }
   useEffect(() => {
@@ -126,6 +137,9 @@ export default function Notification() {
           <CircularProgress />
         </Box>
       )
+      else if(error){
+        return (<ErrorBox message="Failed to load messages" color="error"/>)
+      }
     else {
       return (
         <List className={classes.list}>

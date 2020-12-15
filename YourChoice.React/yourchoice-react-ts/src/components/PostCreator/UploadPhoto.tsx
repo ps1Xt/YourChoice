@@ -1,8 +1,8 @@
-import { Card, CardMedia, Container, createStyles, Grid, makeStyles, Paper, TextField, Theme, Typography } from '@material-ui/core'
-import React, { useContext, useEffect, useMemo, useState } from 'react'
+import { Container, createStyles, Grid, makeStyles, TextField, Theme, Typography } from '@material-ui/core'
+import React, { useEffect, useState } from 'react'
 import DragAndDrop from './DragNDrop'
 import DefaultPhoto from './default.png'
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import CombinedStore from '../../store/CombinedStore';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -39,7 +39,8 @@ export const UploadPhoto = (props: any) => {
         setPostPartSrc,
         postPartFiles,
         setPostPartFiles,
-        label
+        label,
+        text
     } = props;
 
 
@@ -114,7 +115,7 @@ export const UploadPhoto = (props: any) => {
                         </div>
                     </Grid>
                     <Grid item xs={9}>
-                        <DragAndDrop filesHandler={fileHandler} />
+                        <DragAndDrop filesHandler={fileHandler} text={text}/>
                     </Grid>
                 </Grid>
             </Container>

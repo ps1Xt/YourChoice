@@ -18,8 +18,8 @@ export const getCountOfNewMessages = async (): Promise<NewMessages>=> {
     if(!response.ok)
         throw Error("Unauthorized")
 
-    let json : NewMessages = await response.json();
+    let result : NewMessages = await response.json();
 
-    return json;
+    return result;
 
 }

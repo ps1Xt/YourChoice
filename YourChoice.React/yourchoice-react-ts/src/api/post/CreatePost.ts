@@ -4,16 +4,32 @@ import { PostForCreate } from './Models/PostForCreate';
 
 
 
-export const createPost = (data: PostForCreate) => {
-    console.log(data);
+export const createPost = async (data: PostForCreate) => {
     const formData = new FormData();
-    formData.append("description", <string>(data.description));
-    formData.append("size", data.size.toString());
-    for (let i = 0; i <= data.size; i++) {
-
-        formData.append(`image${i}`, <File>data.postParts[i].file, <string>data.postParts[i].title)
+    try {
+        formData.append("description", <string>(data.description));
     }
-    fetch(baseUrl + "post", {
+    catch {
+        throw Error("Data is not valid")
+    }
+    let i;
+    try {
+        for ( i = 0; i <= data.size; i++) {
+
+            formData.append(`image${i}`, <File>data.postParts[i].file, <string>data.postParts[i].title)
+        }
+    }
+    catch{
+        if(i == 0){
+             throw new Error("please append logo")
+        }
+        else{
+            throw Error("No file or it is not valid at" + i +" part")
+        }
+    }
+    
+    
+    let response = await fetch(baseUrl + "post", {
         method: 'post',
         headers: {
             Authorization: GetToken(),
@@ -21,6 +37,14 @@ export const createPost = (data: PostForCreate) => {
         },
         body: formData
     })
+
+    if (!response.ok)
+        throw Error("Failed to load post")
+        
+    let result = await response.json()
+    
+    return result;
+    
 
 }
 

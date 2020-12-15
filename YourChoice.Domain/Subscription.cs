@@ -15,7 +15,5 @@ namespace YourChoice.Domain
         public virtual User ToWhom { get; set; }
 
         public bool Value { get; set; }
-
-        public string  sdasd {get; set;}
     }
 }

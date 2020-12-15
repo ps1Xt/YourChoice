@@ -39,7 +39,7 @@ export default function Search(props: pageRequestState) {
     let filter: Filter = {
       path: 'title',
       value: value,
-      operation: '.Contains'
+      operation: 'contains'
     }
     setPageRequest({
       ...pageRequest,

@@ -17,7 +17,7 @@ namespace YourChoice.Api.Services.interfaces
 
         public Task<PaginatedResult<PostGridRowDto>> GetPage(PagedRequest pagedRequest);
 
-        public Task<PaginatedResult<PostCardDto>> GetMainPageHome(MainPageRequest pagedRequest, string userName);
+        public Task<PaginatedResult<PostCardDto>> GetMainPageHome(MainPageRequest pagedRequest);
 
         public Task<PaginatedResult<PostCardDto>> GetMainPageSubscriptions(MainPageRequest pagedRequest, string userName);
 

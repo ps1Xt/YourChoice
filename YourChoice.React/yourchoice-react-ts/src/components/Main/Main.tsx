@@ -5,7 +5,6 @@ import { Grid } from '@material-ui/core';
 import PostNavMenu from './PostNavMenu';
 import Pagination from '@material-ui/lab/Pagination';
 import { LoadingBox } from '../Common/LoadingBox';
-import { Unauthorized } from '../Common/UnauthorizedBox';
 import { MainPageRequest } from '../../api/post/Models/MainPageRequest';
 import { RequestFilters } from '../../api/grid/models/RequestFilters';
 import { FilterLogicalOperators } from '../../api/grid/models/FilterLogicalOperators';
@@ -13,6 +12,7 @@ import { Filter } from '../../api/grid/models/Filter';
 import { PostCard } from '../../api/post/Models/PostCard';
 import { PaginatedResult } from '../../api/grid/models/PaginatedResult';
 import { loadPostCards } from '../../api/post/LoadPostCards';
+import { ErrorBox } from '../Common/ErrorBox';
 
 
 
@@ -97,7 +97,7 @@ export function Main() {
           <PostNavMenu pageRequest={[mainPageRequest, setMainPageRequest]}></PostNavMenu>
         </Grid>
         {loading && <div style={{ minHeight: '400px', minWidth: '100%', position: 'relative' }}><LoadingBox /></div>}
-        {error && <div style={{ minHeight: '400px', minWidth: '100%', position: 'relative' }}><Unauthorized variant="h3" message={error} /></div>}
+        {error && <div style={{ minHeight: '400px', minWidth: '100%', position: 'relative' }}><ErrorBox variant="h3" message={error} /></div>}
         {!error && !loading &&
           cards.map((card) => {
             return (

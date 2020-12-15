@@ -14,6 +14,9 @@ export const getMessages = async (): Promise<Message[]>=> {
 
     });
 
+    if(!response.ok)
+        throw Error("Failed to load messages")
+
     return await response.json();
 
 

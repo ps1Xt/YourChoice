@@ -65,8 +65,7 @@ namespace YourChoice.Api.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetMainPageHome(MainPageRequest mainPageRequest)
         {
-            var userName = User.Identity.Name;
-            var posts = await service.GetMainPageHome(mainPageRequest, userName);
+            var posts = await service.GetMainPageHome(mainPageRequest);
             return Ok(posts);
         }
         [HttpPost("MainPage/Subscriptions")]

@@ -87,11 +87,12 @@ export function SignIn() {
         resolver: yupResolver(schema)
     });
     const OnSubmitHandler = (data: UserForLogin) => {
+        dispatch(loginUser(data));
         setLoading(true);
         if (isAuthenticating) {
             return;
         }
-        dispatch(loginUser(data));
+        
     }
     useEffect(() => {
         if (isAuthenticated) {

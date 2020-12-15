@@ -33,14 +33,17 @@ namespace YourChoice.Api.Services.Implementation
         public async Task<Post> CreatePost(IFormCollection form, User user)
         {
             Post post = new Post();
-            //post.Title = form["title"];
+
             post.Description = form["description"];
+
             post.UserId = user.Id;
 
             List<PostPart> postParts = new List<PostPart>();
             List<Task<(string, string)>> tasks = new List<Task<(string, string)>>();
             var files = form.Files;
+
             post.Size = files.Count - 1;
+
             var streams = new List<(Stream, string)>();
             foreach (var file in files)
             {
@@ -51,34 +54,19 @@ namespace YourChoice.Api.Services.Implementation
             {
                 tasks.Add(Task.Run<(string, string)>(() => photoService.UploadPhoto(stream, name)));
             }
-            await Task.WhenAll(tasks);
-            /*     foreach (var task in tasks)
-                 {
-                     var result = task.Result;
-                     postParts.Add(new PostPart
-                     {
-                         Link = result.Item1,
-                         Title = result.Item2,
-                     });
-                 }*/
-            var title = tasks[0].Result.Item2;
+            var localPostParts = await Task.WhenAll(tasks);
 
-            var logo = tasks[0].Result.Item1;
+            var title = localPostParts[0].Item2;
 
+            var logo = localPostParts[0].Item1;
 
             post.Title = title;
 
             post.Logo = logo;
 
-            for (int i = 1; i < tasks.Count; i++)
-            {
-                postParts.Add(new PostPart
-                {
-                    Link = tasks[i].Result.Item1,
-                    Title = tasks[i].Result.Item2
-                });
-            }
-            post.PostParts = postParts;
+            var parts = localPostParts.Skip(1).Select(x => new PostPart { Title = x.Item2, Link = x.Item1 }).ToList();
+
+            post.PostParts = parts;
 
             await repository.Add<Post>(post);
 
@@ -97,9 +85,8 @@ namespace YourChoice.Api.Services.Implementation
             return mainPage;
         }
 
-        public async Task<PaginatedResult<PostCardDto>> GetMainPageHome(MainPageRequest pagedRequest, string userName)
+        public async Task<PaginatedResult<PostCardDto>> GetMainPageHome(MainPageRequest pagedRequest)
         {
-            var user = (await repository.Find<User>(x => x.UserName == userName)).SingleOrDefault();
 
             var mainPage = await repository.GetPagedData<Post, PostCardDto>(pagedRequest);
 
@@ -126,7 +113,7 @@ namespace YourChoice.Api.Services.Implementation
             return mainPage;
         }
 
-        //test method
+        
         public async Task<PaginatedResult<PostGridRowDto>> GetPage(PagedRequest pagedRequest)
         {
             var pagedPosts = await repository.GetPagedData<Post, PostGridRowDto>(pagedRequest);

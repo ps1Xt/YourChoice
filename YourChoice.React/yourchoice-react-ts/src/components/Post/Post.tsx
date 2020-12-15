@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react'
 import versus from './versus.png'
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
-import { LeaveComment } from './LeaveComment';
 import { useForm } from 'react-hook-form';
 import { comment } from '../../api/comment/Comment';
 import { Comment } from './Comment'
@@ -18,6 +17,8 @@ import { GetPost } from '../../api/post/GetPost';
 import { getCommentByUrl } from '../../api/comment/GetCommentByUrl';
 import removeFromFavorites from '../../api/favorites/RemoveFromFavorites';
 import { unSubscribe } from '../../api/subscription/UnSubscribe';
+import { ErrorBox } from '../Common/ErrorBox';
+import { ErrorObject } from '../../models/ErrorObject'
 
 const useStyles = makeStyles(() =>
     createStyles({
@@ -56,7 +57,7 @@ const shuffle = (arr: PostPartForView[]) => {
     return arr;
 }
 
-let defaultPost : PostForView = {
+let defaultPost: PostForView = {
     id: 1,
     title: "",
     userName: "",
@@ -80,6 +81,7 @@ export const Post = (props: any) => {
 
 
     let [isLoading, setIsLoading] = useState<boolean>(true)
+    let [error, setError] = useState<ErrorObject>({ status: false })
     let [post, setPost] = useState<PostForView>(defaultPost)
     let [leftPic, setLeftPic] = useState<string>();
     let [rightPic, setRightPic] = useState<string>();
@@ -94,18 +96,27 @@ export const Post = (props: any) => {
     window.onresize = () => setHeight(getBoxHeight())
 
     const LoadPost = async () => {
-        let result = await GetPost(params.postId)
-        setPost(result);
-        if (result.postParts != undefined) {
-            setLeftPic(result.postParts[0].link)
-            setRightPic(result.postParts[1].link)
-            setLeftName(result.postParts[0].title)
-            setRightName(result.postParts[1].title)
-            setPrevPostParts(result.postParts);
-            setSize(result.size);
-            comments = result.comments?.reverse() ?? [];
-            setComments(comments);
+        try {
+            let result = await GetPost(params.postId)
+            setPost(result);
+            if (result.postParts != undefined) {
+                setLeftPic(result.postParts[0].link)
+                setRightPic(result.postParts[1].link)
+                setLeftName(result.postParts[0].title)
+                setRightName(result.postParts[1].title)
+                setPrevPostParts(result.postParts);
+                setSize(result.size);
+                comments = result.comments?.reverse() ?? [];
+                setComments(comments);
+            }
+
+        }
+        catch (ex) {
+            setError({ status: true, message: ex.message })
+        }
+        finally {
             setIsLoading(false);
+
         }
 
 
@@ -150,11 +161,17 @@ export const Post = (props: any) => {
         }
     }
     const LeaveCommentHandler = async (e: any) => {
+        try {
+            let url = await comment(post.id, e.comment);
+            let data = await getCommentByUrl(url);
+            comments.unshift(data);
+            setComments(comments)
+        }
+        catch (ex) {
+            console.log(ex.message)
+        }
 
-        let url = await comment(post.id, e.comment);
-        let data = await getCommentByUrl(url);
-        comments.unshift(data);
-        setComments(comments)
+
     }
     const favoritesHandler = () => {
         if (post.isInFavorites) {
@@ -167,13 +184,13 @@ export const Post = (props: any) => {
     }
     const rateHandler = async (value: number) => {
         if (value != null) {
-            let response = await ratePost(post.id, value);
-            if (response.ok) {
-                let result = await response.json();
+            try {
+                let result = await ratePost(post.id, value);
                 setPost({ ...post, avgRating: result.avgRating })
-
             }
-
+            catch (ex) {
+                console.log(ex.message)
+            }
         }
 
     }
@@ -197,6 +214,9 @@ export const Post = (props: any) => {
 
     if (isLoading)
         return (<div style={{ height: `${getHeight() - 64}px`, width: `100%`, display: 'flex', justifyContent: 'center', alignItems: 'center' }}><CircularProgress /></div>)
+    if (error.status) {
+        return <ErrorBox message={error.message}/>
+    }
     else
         return (
             <div style={{ width: '100%', background: '#464646', height: `${height}px`, maxHeight: '700px', position: "absolute", top: '0px', left: '0px' }}>
@@ -312,12 +332,6 @@ export const Post = (props: any) => {
 
                     <Container style={{ marginTop: '20px' }}>
                         <form onSubmit={handleSubmit(LeaveCommentHandler)}>
-                            {/* <LeaveComment xs={12}
-                                rows={2}
-                                rowsMax={100}
-                                buttonColor="primary"
-                                placeholder="Leave a comment"
-                                name="comment" inputRef={register}></LeaveComment> */}
                             <Grid container justify='flex-start' spacing={1}>
                                 <Grid item xs={12}>
                                     <OutlinedInput

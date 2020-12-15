@@ -1,6 +1,8 @@
 import { GetToken } from "../../services/JwtService";
 import { baseUrl } from "../baseUrl";
+import { PaginatedResult } from "../grid/models/PaginatedResult";
 import { MainPageRequest } from "./Models/MainPageRequest";
+import { PostCard } from "./Models/PostCard";
 
 export const loadPostCards = async (mainPageRequest: MainPageRequest, section: string) => {
     let response = await fetch(baseUrl + `post/mainpage/${section}`, {
@@ -20,5 +22,7 @@ export const loadPostCards = async (mainPageRequest: MainPageRequest, section: s
         else
             throw Error("Something went wrong");
 
-    return await response.json()
+    let result: PaginatedResult<PostCard> = await response.json()
+
+    return result;
 }

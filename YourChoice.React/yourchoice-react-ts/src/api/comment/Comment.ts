@@ -2,9 +2,9 @@ import { GetToken } from "../../services/JwtService";
 import { baseUrl } from "../baseUrl";
 
 
-export const comment = (postId: number, text: string) : Promise<string> => {
+export const comment = async (postId: number, text: string) : Promise<string> => {
 
-    return fetch(baseUrl + "comment", {
+    let response = await fetch(baseUrl + "comment", {
         method: 'post',
         headers: {
             "Accept": "application/json",
@@ -15,7 +15,15 @@ export const comment = (postId: number, text: string) : Promise<string> => {
             PostId: postId,
             Text: text
         })
-    }).then(response => <string>response.headers.get('Location'));
+    });
+
+    if(!response.ok){
+        throw Error("Failed to comment")
+    }
+    
+    let result = await <string>response.headers.get('Location')
+
+    return result;
 
 }
 

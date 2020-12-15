@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
-import {  Divider, Grid, NativeSelect, Paper, Radio, RadioGroup, TextField } from '@material-ui/core';
+import { Divider, Grid, NativeSelect, Paper, Radio, RadioGroup, TextField } from '@material-ui/core';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
@@ -11,6 +11,11 @@ import { createPost } from '../../api/post/CreatePost';
 import { UploadPhotos } from './UploadPhotos';
 import { PostPartsForCreate } from '../../api/post/Models/PostPartsForCreate';
 import { PostForCreate } from '../../api/post/Models/PostForCreate';
+import { ErrorObject } from '../../models/ErrorObject';
+import { LoadingBox } from '../Common/LoadingBox';
+import { ErrorBox } from '../Common/ErrorBox';
+import { useSelector } from 'react-redux';
+import CombinedStore from '../../store/CombinedStore';
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         PostRedactor: {
@@ -34,15 +39,14 @@ const schema = yup.object().shape({
 
 export default function CreatePost() {
     const sizeList: number[] = [8, 16, 32, 64, 128, 256]
-
     const classes = useStyles();
-    let [namePostParts, setNamePostParts] = useState<string[]>([])
-    let [title, setTitle] = useState<string>("")
-    let [description, setDescription] = useState<string>("")
     let [size, setSize] = useState<number>(8)
     let [postPartNames, setPostPartNames] = useState<string[]>([])
     let [postPartSrc, setPostPartSrc] = useState<any[]>([])
     let [postPartFiles, setPostPartFiles] = useState<File[]>([])
+    let [buttonState, setButtonState] = useState(false)
+    let [error, setError] = useState<ErrorObject>({ status: false });
+    let [loading, setLoading] = useState(false)
     const form = useForm({
         resolver: yupResolver(schema)
     });
@@ -54,11 +58,11 @@ export default function CreatePost() {
                 postPartSrc={postPartSrc} setPostPartSrc={setPostPartSrc}
                 postPartFiles={postPartFiles} setPostPartFiles={setPostPartFiles}
                 label="Title"
+                text="Drop photo here or click to upload"
             />
         </div>
     }
-    const onSubmitHandler = (e: any) => {
-        console.log(e)
+    const onSubmitHandler = async (e: any) => {
         let postParts = new Array<PostPartsForCreate>()
         for (let i = 0; i <= size; i++) {
             let postPart: PostPartsForCreate = {
@@ -72,15 +76,25 @@ export default function CreatePost() {
             size: size,
             postParts: postParts
         }
-        createPost(post)
+        try {
+            setButtonState(true)
+            setLoading(true)
+            let result = await createPost(post)
+        }
+        catch (ex) {
+            setError({ status: true, message: ex.message })
+        }
+        finally {
+            setButtonState(false)
+            setLoading(false)
+        }
+
 
     }
     const changeSizeHandler = (e: any) => {
         let size: number = e.target.value
         setSize(size)
     }
-    console.log(postPartFiles)
-    console.log(postPartNames)
     return (
         <form onSubmit={handleSubmit((e) => onSubmitHandler(e))} autoComplete="off">
             <div style={{ margin: '40px 0px' }}>
@@ -97,6 +111,7 @@ export default function CreatePost() {
                                     postPartSrc={postPartSrc} setPostPartSrc={setPostPartSrc}
                                     postPartFiles={postPartFiles} setPostPartFiles={setPostPartFiles}
                                     label="Enter post Title"
+                                    text ={"Drop logo here or click to upload"}
                                 />
                             </Grid>
                         </Grid>
@@ -130,8 +145,8 @@ export default function CreatePost() {
                                     inputRef={register}
                                     onChange={changeSizeHandler}
                                 >
-                                    {sizeList.map((value: Number) => {
-                                        return <option >{value}</option>
+                                    {sizeList.map((value: number) => {
+                                        return <option key={value} >{value}</option>
                                     })}
                                 </NativeSelect>
                             </Grid>
@@ -141,7 +156,8 @@ export default function CreatePost() {
                     <UploadPhotos
                         postPartNames={postPartNames}
                         postPartSrc={postPartSrc}
-                        postPartFiles={postPartFiles}>
+                        postPartFiles={postPartFiles}
+                        text={"Drop photos here or click to upload"}>
                     </UploadPhotos>
                     <Divider />
                     {items}
@@ -149,12 +165,18 @@ export default function CreatePost() {
 
                         <Grid container justify="center">
                             <Grid item>
-                                <Button type="submit" variant="contained" color="primary">Create Post</Button>
+                                <Button type="submit" variant="contained" disabled={buttonState} color="primary">Create Post</Button>
                             </Grid>
                         </Grid>
+                        <div style={{ position: 'relative', marginTop: '40px' }}>
+                            {loading && <LoadingBox />}
+                            {error.status && <ErrorBox message={error.message} color="error" />}
+                        </div>
                     </div>
 
+
                 </Paper>
+
             </div>
         </form>
     )

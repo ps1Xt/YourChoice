@@ -198,7 +198,7 @@ export const DataGrid = () => {
             { error &&
                 
                 <div>
-                    <ErrorBox message="Loading Data Failed" ></ErrorBox>
+                    <ErrorBox color="error" message="Loading Data Failed" ></ErrorBox>
                 </div>
             }
         </Paper>

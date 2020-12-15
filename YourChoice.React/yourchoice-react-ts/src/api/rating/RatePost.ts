@@ -1,5 +1,6 @@
 import config from "../../config";
 import { GetToken } from "../../services/JwtService";
+import { AvgRating } from "./Models/AvgRating";
 
 const baseUrl = config.API_URL;
 
@@ -18,6 +19,13 @@ export const ratePost = async (postId: number, value: number) => {
         })
 
     });
-    return response;
+
+    if (!response.ok) {
+        throw Error("Failed to rate the post")
+    }
+
+    let result: AvgRating = await response.json()
+
+    return result;
 
 }
