@@ -7,12 +7,15 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using YourChoice.Api.Database;
+using YourChoice.Api.Hubs;
+using YourChoice.Api.Hubs.Providers;
 using YourChoice.Api.Infrastructure.Extensions;
 using YourChoice.Api.Mappings;
 using YourChoice.Api.Repositories.Implementation;
@@ -45,7 +48,7 @@ namespace YourChoice.Api
             services.AddIdentity<User, Role>()
                 .AddEntityFrameworkStores<DataBaseContext>();
 
-            
+
             var authOptions = services.ConfigureAuthOptions(Configuration);
             services.AddJwtAuthentication(authOptions);
 
@@ -61,16 +64,18 @@ namespace YourChoice.Api
             services.AddScoped<ISubscriptionService, SubscriptionService>();
             services.AddScoped<IRatingService, RatingService>();
             services.AddScoped<IAccountService, AccountService>();
+            services.AddSignalR();
+            services.AddSingleton<IUserIdProvider, NameUserIdProvider>();
             services.AddCors(options =>
             {
                 // this defines a CORS policy called "default"
                 options.AddPolicy("default", policy =>
                 {
-                    policy.WithOrigins("http://localhost:3000")
-                        .AllowAnyHeader()
-                        .AllowAnyMethod()
-                        .AllowAnyOrigin()
-                        .WithExposedHeaders("Location");
+
+                    policy.AllowAnyHeader()
+                          .AllowAnyMethod()
+                          .AllowAnyOrigin()
+                          .WithExposedHeaders("Location");
                 });
             });
 
@@ -92,12 +97,6 @@ namespace YourChoice.Api
 
             app.UseCors("default");
 
-/*            app.UseCors(configurePolicy => configurePolicy
-            .AllowAnyOrigin()
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .WithExposedHeaders("Location"));*/
-
             app.UseAuthentication();
 
             app.UseAuthorization();
@@ -108,14 +107,15 @@ namespace YourChoice.Api
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json",
                 "Swagger API");
-                
+
             });
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<NotifyHub>("/hubs/notify");
             });
-            
+
         }
         private void ConfigureSwagger(IServiceCollection services)
         {

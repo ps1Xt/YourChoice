@@ -1,5 +1,5 @@
 import { CircularProgress, Container, createStyles, Grid, OutlinedInput, makeStyles, Paper, Typography, Divider, IconButton, Button, Box } from '@material-ui/core';
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import versus from './versus.png'
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
@@ -19,6 +19,7 @@ import removeFromFavorites from '../../api/favorites/RemoveFromFavorites';
 import { unSubscribe } from '../../api/subscription/UnSubscribe';
 import { ErrorBox } from '../Common/ErrorBox';
 import { ErrorObject } from '../../models/ErrorObject'
+import { SignalRContext } from '../../App';
 
 const useStyles = makeStyles(() =>
     createStyles({
@@ -72,6 +73,7 @@ let defaultPost: PostForView = {
     size: 8,
 }
 export const Post = (props: any) => {
+    const context = useContext(SignalRContext)
 
     const { register, handleSubmit, errors } = useForm();
     const classes = useStyles();
@@ -154,7 +156,6 @@ export const Post = (props: any) => {
             setStep(1)
         }
         else if (winner.link == undefined) {
-            console.log(winner.link)
             setWinner(prevPostParts[(step - 1) * 2 + coef])
             return;
 
@@ -166,6 +167,7 @@ export const Post = (props: any) => {
             let data = await getCommentByUrl(url);
             comments.unshift(data);
             setComments(comments)
+            context.CommentNotify(post.id);
         }
         catch (ex) {
             console.log(ex.message)
@@ -179,7 +181,10 @@ export const Post = (props: any) => {
         }
         else {
             addToFavorites(post.id);
+            context.FavoritesNotify(post.id)
+
         }
+
         setPost({ ...post, isInFavorites: !post.isInFavorites })
     }
     const rateHandler = async (value: number) => {
@@ -202,12 +207,25 @@ export const Post = (props: any) => {
             setCommentValue("");
         }, 10)
     }
-    const subscriptionHandler = () => {
+    const subscriptionHandler = async () => {
         if (post.isSubscribed) {
-            unSubscribe(post.userName);
+            try {
+
+                await unSubscribe(post.userName);
+            }
+            catch {
+                setPost({ ...post, isSubscribed: !post.isSubscribed })
+            }
         }
         else {
-            subscribe(post.userName);
+            try {
+                context.SubscriptionNotify(post.id)
+                await subscribe(post.userName);
+
+            }
+            catch {
+                setPost({ ...post, isSubscribed: !post.isSubscribed })
+            }
         }
         setPost({ ...post, isSubscribed: !post.isSubscribed })
     }
@@ -215,7 +233,7 @@ export const Post = (props: any) => {
     if (isLoading)
         return (<div style={{ height: `${getHeight() - 64}px`, width: `100%`, display: 'flex', justifyContent: 'center', alignItems: 'center' }}><CircularProgress /></div>)
     if (error.status) {
-        return <ErrorBox message={error.message}/>
+        return <ErrorBox message={error.message} />
     }
     else
         return (
@@ -248,7 +266,7 @@ export const Post = (props: any) => {
                         <div className={classes.photoContainer} style={{ minHeight: `${getBoxHeight()}px` }}>
 
 
-                            <img style={{ maxWidth: '95%', maxHeight: `${height}px` }} onClick={() => clickHandler(0)} src={leftPic} />
+                            <img style={{ maxWidth: '95%', maxHeight: `${height}px`, cursor:'pointer' }} onClick={() => clickHandler(0)} src={leftPic} />
                             <div style={{ position: 'absolute', overflow: 'hidden', height: '50px', width: '100%', bottom: '0px', backgroundColor: 'rgba(0, 0, 0, 0.4)', textAlign: 'center', fontSize: '42px', color: 'white', fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif' }}>
                                 {leftName}
                             </div>
@@ -259,7 +277,7 @@ export const Post = (props: any) => {
                     {winner.link == undefined && <Grid item xs={6}>
                         <div className={classes.photoContainer} style={{ justifyContent: 'flex-start', minHeight: `${getBoxHeight()}px` }}>
 
-                            <img style={{ maxWidth: '95%', maxHeight: `${height}px` }} onClick={() => clickHandler(1)} src={rightPic} />
+                            <img style={{ maxWidth: '95%', maxHeight: `${height}px`, cursor: 'pointer' }} onClick={() => clickHandler(1)} src={rightPic} />
                             <div style={{ position: 'absolute', overflow: 'hidden', height: '50px', width: '100%', bottom: '0px', backgroundColor: 'rgba(0, 0, 0, 0.4)', textAlign: 'center', fontSize: '42px', color: 'white', fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif' }}>
                                 {rightName}
                             </div>
@@ -269,7 +287,7 @@ export const Post = (props: any) => {
                         <Grid item xs={12}>
                             <div className={classes.photoContainer} style={{ justifyContent: 'center', minHeight: `${getBoxHeight()}px` }}>
 
-                                <img style={{ maxWidth: '95%', zIndex: 1, maxHeight: `${height}px` }} onClick={() => clickHandler(1)} src={winner.link} />
+                                <img style={{ maxWidth: '95%', zIndex: 1, maxHeight: `${height}px`, cursor: 'pointer' }} onClick={() => clickHandler(1)} src={winner.link} />
                                 <div style={{ position: 'absolute', zIndex: 10, overflow: 'hidden', height: '50px', width: '100%', bottom: '0px', backgroundColor: 'rgba(0, 0, 0, 0.4)', textAlign: 'center', fontSize: '42px', color: 'white', fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif' }}>
                                     {winner.title} won
                                 </div>

@@ -12,6 +12,7 @@ import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DateToString } from '../../services/DateService';
 import { PostCard } from '../../api/post/Models/PostCard';
+import { useHistory } from 'react-router-dom';
 const useStyles = makeStyles((theme) => ({
     root: {
         maxWidth: 250,
@@ -49,17 +50,20 @@ const useStyles = makeStyles((theme) => ({
 
 
 
-const noOutline = {
-}
+
 
 
 export default function RecipeReviewCard(props: PostCard) {
     const classes = useStyles();
     const [expanded, setExpanded] = React.useState(false);
+    const history = useHistory();
     const data = props;
     const handleExpandClick = () => {
         setExpanded(!expanded);
     };
+    const onPostClick = () =>{
+        history.push("post/" + data.id)
+    }
 
     return (
         <Card className={classes.root} elevation={4}>
@@ -78,6 +82,7 @@ export default function RecipeReviewCard(props: PostCard) {
             <CardMedia
                 className={classes.media}
                 image={data.logo}
+                onClick={onPostClick}
             />
 
             <CardActions disableSpacing>
@@ -91,7 +96,6 @@ export default function RecipeReviewCard(props: PostCard) {
                     onClick={handleExpandClick}
                     aria-expanded={expanded}
                     aria-label="show more"
-                    style={noOutline}
                 >
                     <ExpandMoreIcon />
                 </IconButton>

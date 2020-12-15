@@ -1,6 +1,5 @@
 import { on, reducer } from "ts-action";
 import { setUpdate } from "../actions/_createPost";
-import { update } from "../actions/_setFiles";
 
 export interface CreatePostStore {
     update: number

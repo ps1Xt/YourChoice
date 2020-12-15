@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using YourChoice.Api.Exceptions;
 using YourChoice.Api.Repositories.interfaces;
 using YourChoice.Api.Services.interfaces;
 using YourChoice.Domain;
@@ -68,7 +69,7 @@ namespace YourChoice.Api.Services.implementation
             return message;
         }
 
-        public async Task<Message> PostNotify(string userName, string whosePost)
+        public async Task<Message> SubscribersNotify(string userName, string whosePost)
         {
             string title = "New Post";
 
@@ -77,14 +78,7 @@ namespace YourChoice.Api.Services.implementation
             return await Notify(title, text, userName);
         }
 
-        public async Task<Message> RegisterNotify(string userName)
-        {
-            string title = "YourChoice";
-
-            string text = $"Hi {userName}! Welcome to YourChoice";
-
-            return await Notify(title, text, userName);
-        }
+      
 
         public async Task<Message> SubscriptionNotify(string userName, string whoSubscribed)
         {
@@ -100,22 +94,11 @@ namespace YourChoice.Api.Services.implementation
         public async Task<List<Message>> GetMessages(string userName)
         {
             var user = await userManager.FindByNameAsync(userName);
-            var messages = await repository.Find<Message>(x => x.UserId == user.Id && x.Date.AddDays(-7) < DateTime.Now);
+            var messages = await repository.Find<Message>(x => x.UserId == user.Id && x.Date.AddDays(-1) < DateTime.Now);
 
             return messages.Reverse().ToList();
         }
 
-        public async Task<int> getCountOfNewMessages(string userName)
-        {
-            var user = await userManager.FindByNameAsync(userName);
-
-            var messages = await repository.Find<Message>(x => x.UserId == user.Id && x.Date.AddDays(-7) < DateTime.Now && !x.IsRead);
-
-            var count = messages.Count();
-
-            return count;
-
-        }
 
         public async Task<bool> ReadMessages(string userName)
         {
@@ -132,5 +115,6 @@ namespace YourChoice.Api.Services.implementation
 
             return true;
         }
+
     }
 }

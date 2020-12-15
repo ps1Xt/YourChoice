@@ -1,9 +1,9 @@
 import {combineReducers} from 'redux';
 import auth from './auth';
 import createPost from './createPost'
-import setFiles from './setFiles'
+import notification from './notification'
 export default combineReducers({
  auth : auth,
  createPost : createPost,
- setFiles: setFiles,
+ notification : notification
 });

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
@@ -16,6 +16,12 @@ import { LoadingBox } from '../Common/LoadingBox';
 import { ErrorBox } from '../Common/ErrorBox';
 import { useSelector } from 'react-redux';
 import CombinedStore from '../../store/CombinedStore';
+import {newPostNotifyServer} from '../../services/SignalRController'
+import { getConnection } from '../../api/notification/GetConnection';
+import { GetToken } from '../../services/JwtService';
+import { HubConnectionBuilder } from '@microsoft/signalr'
+import * as signalR from "@microsoft/signalr";
+import { SignalRContext } from '../../App';
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         PostRedactor: {
@@ -47,11 +53,12 @@ export default function CreatePost() {
     let [buttonState, setButtonState] = useState(false)
     let [error, setError] = useState<ErrorObject>({ status: false });
     let [loading, setLoading] = useState(false)
+    const context = useContext(SignalRContext)
     const form = useForm({
         resolver: yupResolver(schema)
     });
     const { register, handleSubmit, errors } = form;
-    let items = []
+    let items = new Array<any>()
     for (let i = 1; i <= size; i++) {
         items[i] = <div key={i} style={{ margin: '50px 0' }}>
             <UploadPhoto id={i} postPartNames={postPartNames} setPostPartNames={setPostPartNames}
@@ -62,6 +69,8 @@ export default function CreatePost() {
             />
         </div>
     }
+
+
     const onSubmitHandler = async (e: any) => {
         let postParts = new Array<PostPartsForCreate>()
         for (let i = 0; i <= size; i++) {
@@ -77,9 +86,11 @@ export default function CreatePost() {
             postParts: postParts
         }
         try {
+            setError({ status: false})
             setButtonState(true)
             setLoading(true)
             let result = await createPost(post)
+            context.SubscribersNotify();
         }
         catch (ex) {
             setError({ status: true, message: ex.message })
@@ -88,7 +99,6 @@ export default function CreatePost() {
             setButtonState(false)
             setLoading(false)
         }
-
 
     }
     const changeSizeHandler = (e: any) => {

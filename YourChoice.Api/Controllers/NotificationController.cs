@@ -34,15 +34,6 @@ namespace YourChoice.Api.Controllers
 
         }
 
-        [HttpGet("{count}")]
-        public async Task<IActionResult> GetCountOfNewMessages()
-        {
-            var userName = User.Identity.Name;
-
-            var number = await notificationService.getCountOfNewMessages(userName);
-
-            return Ok(new { Number = number });
-        }
 
         [HttpPatch]
         public async Task<IActionResult> ReadMessages()

@@ -16,7 +16,7 @@ namespace YourChoice.Api.Services.implementation
     {
         public async Task<(string, string)> UploadPhoto(Stream stream, string name)
         {
-            var apiClient = new ApiClient("3b5daf3c0707fed");
+            var apiClient = new ApiClient("105978a29e95360");
             var httpClient = new HttpClient();
 
             var imageEndpoint = new ImageEndpoint(apiClient, httpClient);

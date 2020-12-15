@@ -24,7 +24,7 @@ export const createPost = async (data: PostForCreate) => {
              throw new Error("please append logo")
         }
         else{
-            throw Error("No file or it is not valid at" + i +" part")
+            throw Error("No file or it is not valid at " + i +" part")
         }
     }
     

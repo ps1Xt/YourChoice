@@ -50,7 +50,6 @@ const useStyles = makeStyles(() =>
     }),
 );
 const FilterIcon = ({ type, ...restProps }: any) => {
-    console.log(type)
     if (type === 'title') return <DateRange {...restProps} />;
     return <TableFilterRow.Icon type={type} {...restProps} />;
 };
@@ -98,8 +97,6 @@ export const DataGrid = () => {
             filters: new Array<Filter>()
         }
         filters.forEach(filter => {
-            console.log('filter')
-            console.log(filter)
             let newFilter: Filter = {
                 path: filter.columnName,
                 value: filter.value,

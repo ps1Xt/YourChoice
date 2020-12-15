@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import Grow from '@material-ui/core/Grow';
 import Paper from '@material-ui/core/Paper';
@@ -12,8 +12,16 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import { Message } from '../../api/notification/Models/Message';
 import { getCountOfNewMessages } from '../../api/notification/GetCountOfNewMessages';
 import { getMessages } from '../../api/notification/GetMessages';
-import { readMessages } from '../../api/notification/ReadMessages';
 import { ErrorBox } from '../Common/ErrorBox';
+import { HubConnectionBuilder } from '@microsoft/signalr'
+import * as signalR from "@microsoft/signalr";
+import { GetToken } from '../../services/JwtService';
+import { getConnection } from '../../api/notification/GetConnection'
+import { useDispatch, useSelector } from 'react-redux';
+import CombinedStore from '../../store/CombinedStore';
+import { SignalRContext } from '../../App';
+import { readMessages } from '../../store/actions/_notification';
+
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
@@ -55,38 +63,19 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-export default function Notification() {
 
+export default function Notification() {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
   const [messages, setMessages] = useState(new Array<Message>())
   const anchorRef = React.useRef<HTMLButtonElement>(null);
   const [isLoading, setIsoLoading] = useState(true);
   const [error, setError] = useState(false)
-  const [newMessages, setNewMessages] = useState<number>();
-
-  useEffect(() => {
-    getNewMessages();
-
-    let timerId = setInterval(() => {
-      getNewMessages();
-    }, 5000)
-    return function cleanup() {
-      clearInterval(timerId);
-    };
-  }, []);
-
-  const getNewMessages = async () => {
-    try {
-      let NewMessages = await getCountOfNewMessages();
-      setNewMessages(NewMessages.number)
-
-    }
-    catch {
-
-    }
-  }
-
+  const dispatch = useDispatch();
+  let newMessages = useSelector<CombinedStore, number>(
+    (s)=>s.notification.number
+  )
+   
 
   const handleToggle = async () => {
     setOpen((prevOpen) => !prevOpen);
@@ -120,7 +109,7 @@ export default function Notification() {
 
   const readMessagesHandler = async () => {
     await readMessages();
-    setNewMessages(0);
+    dispatch(readMessages());
   }
   useEffect(() => {
   }, [])
@@ -137,9 +126,9 @@ export default function Notification() {
           <CircularProgress />
         </Box>
       )
-      else if(error){
-        return (<ErrorBox message="Failed to load messages" color="error"/>)
-      }
+    else if (error) {
+      return (<ErrorBox message="Failed to load messages" color="error" />)
+    }
     else {
       return (
         <List className={classes.list}>

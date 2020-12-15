@@ -6,7 +6,7 @@ import { AnyAction } from 'redux';
 import { UserForLogin } from '../../api/account/models/UserForLogin';
 
 
-type AsyncAction = ThunkAction<
+export type AsyncAction = ThunkAction<
     void | Promise<void>,
     CombinedStore,
     void,

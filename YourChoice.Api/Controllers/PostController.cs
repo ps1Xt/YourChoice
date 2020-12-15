@@ -95,6 +95,7 @@ namespace YourChoice.Api.Controllers
         [ApiExceptionFilter]
         public async Task<IActionResult> CreatePost()
         {
+            var x = Request.Form;
             User user = await userManager.FindByNameAsync(User.Identity.Name);
             Post post = await service.CreatePost(Request.Form, user);
 

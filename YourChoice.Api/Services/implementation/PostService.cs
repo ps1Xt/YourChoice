@@ -54,17 +54,17 @@ namespace YourChoice.Api.Services.Implementation
             {
                 tasks.Add(Task.Run<(string, string)>(() => photoService.UploadPhoto(stream, name)));
             }
-            var localPostParts = await Task.WhenAll(tasks);
+            await Task.WhenAll(tasks);
 
-            var title = localPostParts[0].Item2;
+            var title = tasks[0].Result.Item2;
 
-            var logo = localPostParts[0].Item1;
+            var logo = tasks[0].Result.Item1;
 
             post.Title = title;
 
             post.Logo = logo;
 
-            var parts = localPostParts.Skip(1).Select(x => new PostPart { Title = x.Item2, Link = x.Item1 }).ToList();
+            var parts = tasks.Skip(1).Select(x=>x.Result).Select(x => new PostPart { Title = x.Item2, Link = x.Item1 }).ToList();
 
             post.PostParts = parts;
 
