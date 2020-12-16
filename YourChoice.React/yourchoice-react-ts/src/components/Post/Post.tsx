@@ -180,12 +180,17 @@ export const Post = (props: any) => {
 
     }
     const favoritesHandler = () => {
-        if (post.isInFavorites) {
-            removeFromFavorites(post.id);
+        try{
+            if (post.isInFavorites) {
+                removeFromFavorites(post.id);
+            }
+            else {
+                addToFavorites(post.id);
+                context.FavoritesNotify(post.id)
+    
+            }
         }
-        else {
-            addToFavorites(post.id);
-            context.FavoritesNotify(post.id)
+        catch{
 
         }
 
@@ -198,10 +203,12 @@ export const Post = (props: any) => {
                 let result = await ratePost(post.id, value);
                 context.RatingNotify(post.id)
                 setPost({ ...post, avgRating: result.avgRating })
+
             }
             catch (ex) {
                 console.log(ex.message)
             }
+            
         }
 
     }
@@ -220,17 +227,15 @@ export const Post = (props: any) => {
                 await unSubscribe(post.userName);
             }
             catch {
-                setPost({ ...post, isSubscribed: !post.isSubscribed })
             }
         }
         else {
             try {
-                context.SubscriptionNotify(post.id)
                 await subscribe(post.userName);
+                context.SubscriptionNotify(post.id)
 
             }
             catch {
-                setPost({ ...post, isSubscribed: !post.isSubscribed })
             }
         }
         setPost({ ...post, isSubscribed: !post.isSubscribed })

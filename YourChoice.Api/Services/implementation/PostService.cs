@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using YourChoice.Api.Dtos.Post;
 using YourChoice.Api.Exceptions.Post;
+using YourChoice.Api.Infrastructure.Collections;
 using YourChoice.Api.Infrastructure.Models;
 using YourChoice.Api.Repositories.interfaces;
 using YourChoice.Api.Services.interfaces;
@@ -51,26 +52,7 @@ namespace YourChoice.Api.Services.Implementation
 
             post.Size = files.Count - 1;
 
-            /*            using(Stream stream = files[0].OpenReadStream())
-                        {
-                            await photoService.UploadPhoto(stream, "name");
-                        }*/
-
-            /*List<(string, string)> images = new List<(string, string)>();
-            foreach (var file in files)
-            {
-                using(var stream = file.OpenReadStream())
-                {
-                 //   var d = await photoService.UploadImageAsync(stream.ToString());
-                    var data = await photoService.UploadPhoto(stream, file.FileName);
-                    images.Add(data);
-                }
-            }*/
-
-            var streams = new StreamAndStringCollection();
-
-            // throw new Exception();
-            try
+            using (var streams = new StreamAndStringCollection())
             {
                 foreach (var file in files)
                 {
@@ -82,10 +64,6 @@ namespace YourChoice.Api.Services.Implementation
                     tasks.Add(Task.Run<(string, string)>(() => photoService.UploadPhoto(stream, name)));
                 }
                 await Task.WhenAll(tasks);
-            }
-            finally
-            {
-                streams.Dispose();
             }
 
             var title = tasks[0].Result.Item2;
@@ -166,14 +144,5 @@ namespace YourChoice.Api.Services.Implementation
         }
 
     }
-    public class StreamAndStringCollection : Collection<(Stream,string)>, IDisposable
-    {
-        public void Dispose()
-        {
-            foreach (var item in Items)
-            {
-                item.Item1.Close();
-            }
-        }
-    }
+    
 }
