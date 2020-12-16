@@ -15,10 +15,12 @@ namespace YourChoice.Api.Controllers
     public class RatingController : ControllerBase
     {
         private readonly IRatingService ratingService;
+        private readonly INotificationService notificationService;
 
-        public RatingController(IRatingService ratingService)
+        public RatingController(IRatingService ratingService, INotificationService notificationService)
         {
             this.ratingService = ratingService;
+            this.notificationService = notificationService;
         }
 
         [HttpPut]
@@ -27,6 +29,8 @@ namespace YourChoice.Api.Controllers
             var userName = User.Identity.Name;
 
             var avgRating = await ratingService.RatePost(postRatingDto, userName);
+
+            await notificationService.RatingNotify(postRatingDto, userName);
 
             return Ok(new { AvgRating = avgRating });
         }

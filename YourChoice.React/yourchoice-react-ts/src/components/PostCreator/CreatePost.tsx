@@ -14,14 +14,8 @@ import { PostForCreate } from '../../api/post/Models/PostForCreate';
 import { ErrorObject } from '../../models/ErrorObject';
 import { LoadingBox } from '../Common/LoadingBox';
 import { ErrorBox } from '../Common/ErrorBox';
-import { useSelector } from 'react-redux';
-import CombinedStore from '../../store/CombinedStore';
-import {newPostNotifyServer} from '../../services/SignalRController'
-import { getConnection } from '../../api/notification/GetConnection';
-import { GetToken } from '../../services/JwtService';
-import { HubConnectionBuilder } from '@microsoft/signalr'
-import * as signalR from "@microsoft/signalr";
-import { SignalRContext } from '../../App';
+import { SignalRContext } from '../../Context/SignalRContext'
+import { useHistory } from 'react-router-dom';
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         PostRedactor: {
@@ -53,6 +47,7 @@ export default function CreatePost() {
     let [buttonState, setButtonState] = useState(false)
     let [error, setError] = useState<ErrorObject>({ status: false });
     let [loading, setLoading] = useState(false)
+    let history = useHistory()
     const context = useContext(SignalRContext)
     const form = useForm({
         resolver: yupResolver(schema)
@@ -86,11 +81,12 @@ export default function CreatePost() {
             postParts: postParts
         }
         try {
-            setError({ status: false})
+            setError({ status: false })
             setButtonState(true)
             setLoading(true)
             let result = await createPost(post)
             context.SubscribersNotify();
+            history.push("post/" + result.id)
         }
         catch (ex) {
             setError({ status: true, message: ex.message })
@@ -121,7 +117,7 @@ export default function CreatePost() {
                                     postPartSrc={postPartSrc} setPostPartSrc={setPostPartSrc}
                                     postPartFiles={postPartFiles} setPostPartFiles={setPostPartFiles}
                                     label="Enter post Title"
-                                    text ={"Drop logo here or click to upload"}
+                                    text={"Drop logo here or click to upload"}
                                 />
                             </Grid>
                         </Grid>

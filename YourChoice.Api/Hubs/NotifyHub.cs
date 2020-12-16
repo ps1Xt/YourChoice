@@ -25,8 +25,6 @@ namespace YourChoice.Api.Hubs
 
         public async Task FavoritesNotify(int postId)
         {
-            var user = await userManager.FindByNameAsync(Context.User.Identity.Name);
-
             var post = await repository.GetById<Post>(postId);
 
             if (post == null)
@@ -38,6 +36,20 @@ namespace YourChoice.Api.Hubs
 
             await Clients.User(userName).SendAsync("NewMessage");
 
+        }
+        public async Task RatingNotify(int postId)
+        {
+
+            var post = await repository.GetById<Post>(postId);
+
+            if (post == null)
+                return;
+            if (post.User.UserName == Context.User.Identity.Name)
+                return;
+
+            var userName = post.User.UserName;
+
+            await Clients.User(userName).SendAsync("NewMessage");
         }
         public async Task SubscriptionNotify(int postId)
         {
@@ -57,7 +69,8 @@ namespace YourChoice.Api.Hubs
         {
             var user = await userManager.FindByNameAsync(Context.User.Identity.Name);
 
-            var userNames = user.Subscribers.Where(x => x.Value == true).Select(x => x.Who.UserName).ToList();
+            IReadOnlyList<string> userNames = user.Subscribers.Where(x => x.Who.UserName != user.UserName)
+                .Where(x => x.Value == true).Select(x => x.Who.UserName).ToList();
 
             await Clients.Users(userNames).SendAsync("NewMessage");
 

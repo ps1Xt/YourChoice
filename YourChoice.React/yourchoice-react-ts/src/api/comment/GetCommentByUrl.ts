@@ -1,4 +1,4 @@
-import { GetToken } from "../../services/JwtService"
+import { GetToken } from "../../helpers/JwtService"
 import { PostComment } from "../post/Models/PostComment";
 
 export const getCommentByUrl = async (url: string) => {

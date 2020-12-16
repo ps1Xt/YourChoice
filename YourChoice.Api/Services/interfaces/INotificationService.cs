@@ -2,19 +2,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using YourChoice.Api.Dtos.Post;
 using YourChoice.Domain;
 
 namespace YourChoice.Api.Services.interfaces
 {
     public interface INotificationService
     {
-        public Task<Message> CommentNotify(int postId, string whoseComment);
+        public Task<bool> CommentNotify(int postId, string whoseComment);
 
-        public Task<Message> SubscribersNotify(string userName, string whosePost);
+        public Task<bool> SubscribersNotify(string userName);
 
-        public Task<Message> FavoritesNotify(int postId, string whoLikedUserName);
+        public Task<bool> FavoritesNotify(int postId, string whoAdded);
 
-        public Task<Message> SubscriptionNotify(string userName, string whoSubscribed);
+        public Task<bool> SubscriptionNotify(string userName, string whoSubscribed);
+
+        public Task<int> getCountOfUnreadMessages(string userName);
+
+        public Task<bool> RatingNotify(PostRatingDto postRatingDto, string whoRated);
 
         public Task<List<Message>> GetMessages(string userName);
 

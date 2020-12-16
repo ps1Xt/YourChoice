@@ -16,10 +16,9 @@ import { fetchCurrentUser } from './store/actions/_auth';
 import { LoadingBox } from './components/Common/LoadingBox';
 import { HubConnectionBuilder } from '@microsoft/signalr';
 import * as signalR from "@microsoft/signalr";
-import { GetToken } from './services/JwtService';
+import { GetToken } from './helpers/JwtService';
 import { newMessage } from './store/actions/_notification';
-
-export const SignalRContext = createContext<any>({})
+import {SignalRContext} from './Context/SignalRContext'
 
 
 
@@ -91,6 +90,11 @@ function App() {
             },
             CommentNotify(postId: number) {
               connection.invoke("CommentNotify", postId)
+                .then(x => { })
+                .catch(x => { })
+            },
+            RatingNotify(postId: number) {
+              connection.invoke("RatingNotify", postId)
                 .then(x => { })
                 .catch(x => { })
             },  connection

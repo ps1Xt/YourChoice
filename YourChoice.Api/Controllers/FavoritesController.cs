@@ -29,12 +29,9 @@ namespace YourChoice.Api.Controllers
 
             var postId = postIdDto.Id;
 
-            var result = await favoriteService.AddToFavorites(postId, userName);
+            await favoriteService.AddToFavorites(postId, userName);
 
-            if(result == true)
-            {
-                await notificationService.FavoritesNotify(postId, userName);
-            }
+            await notificationService.FavoritesNotify(postId, userName);
 
             return Ok(new { Result = true });
 

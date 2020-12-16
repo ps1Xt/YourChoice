@@ -19,7 +19,7 @@ import removeFromFavorites from '../../api/favorites/RemoveFromFavorites';
 import { unSubscribe } from '../../api/subscription/UnSubscribe';
 import { ErrorBox } from '../Common/ErrorBox';
 import { ErrorObject } from '../../models/ErrorObject'
-import { SignalRContext } from '../../App';
+import { SignalRContext } from '../../Context/SignalRContext'
 
 const useStyles = makeStyles(() =>
     createStyles({
@@ -95,6 +95,7 @@ export const Post = (props: any) => {
     let [comments, setComments] = useState<PostComment[]>(new Array<PostComment>())
     let [size, setSize] = useState<number>(4);
     let [step, setStep] = useState<number>(1);
+    const [defaultAvgRating, setDefaultAvgRating] = useState(0)
     window.onresize = () => setHeight(getBoxHeight())
 
     const LoadPost = async () => {
@@ -110,6 +111,7 @@ export const Post = (props: any) => {
                 setSize(result.size);
                 comments = result.comments?.reverse() ?? [];
                 setComments(comments);
+                setDefaultAvgRating(result.avgRating)
             }
 
         }
@@ -163,6 +165,8 @@ export const Post = (props: any) => {
     }
     const LeaveCommentHandler = async (e: any) => {
         try {
+            if (e.comment == "")
+                return
             let url = await comment(post.id, e.comment);
             let data = await getCommentByUrl(url);
             comments.unshift(data);
@@ -190,7 +194,9 @@ export const Post = (props: any) => {
     const rateHandler = async (value: number) => {
         if (value != null) {
             try {
+                console.log("qwee")
                 let result = await ratePost(post.id, value);
+                context.RatingNotify(post.id)
                 setPost({ ...post, avgRating: result.avgRating })
             }
             catch (ex) {
@@ -205,7 +211,7 @@ export const Post = (props: any) => {
     const onCLick = () => {
         setTimeout(() => {
             setCommentValue("");
-        }, 10)
+        }, 100)
     }
     const subscriptionHandler = async () => {
         if (post.isSubscribed) {
@@ -266,7 +272,7 @@ export const Post = (props: any) => {
                         <div className={classes.photoContainer} style={{ minHeight: `${getBoxHeight()}px` }}>
 
 
-                            <img style={{ maxWidth: '95%', maxHeight: `${height}px`, cursor:'pointer' }} onClick={() => clickHandler(0)} src={leftPic} />
+                            <img style={{ maxWidth: '95%', maxHeight: `${height}px`, cursor: 'pointer' }} onClick={() => clickHandler(0)} src={leftPic} />
                             <div style={{ position: 'absolute', overflow: 'hidden', height: '50px', width: '100%', bottom: '0px', backgroundColor: 'rgba(0, 0, 0, 0.4)', textAlign: 'center', fontSize: '42px', color: 'white', fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif' }}>
                                 {leftName}
                             </div>
@@ -301,7 +307,7 @@ export const Post = (props: any) => {
                         <Grid container justify='center'>
                             <Grid item>
                                 <Box component="fieldset" mb={3} borderColor="transparent">
-                                    <Rating name="customized-10" defaultValue={post.avgRating} max={10} onChange={(e: any, value: any) => rateHandler(value)} />
+                                    <Rating name="customized-10" defaultValue={defaultAvgRating} max={10} onChange={(e: any, value: any) => rateHandler(value)} />
                                 </Box>
                             </Grid>
                         </Grid>

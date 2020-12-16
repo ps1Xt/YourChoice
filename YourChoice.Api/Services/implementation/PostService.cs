@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -22,16 +24,20 @@ namespace YourChoice.Api.Services.Implementation
 
         private readonly IMapper mapper;
         private readonly IPhotoService photoService;
+        private readonly UserManager<User> userManager;
 
-        public PostService(IRepository repository, IMapper mapper, IPhotoService photoService)
+        public PostService(IRepository repository, IMapper mapper, IPhotoService photoService, UserManager<User> userManager)
         {
             this.repository = repository;
             this.mapper = mapper;
             this.photoService = photoService;
+            this.userManager = userManager;
         }
 
-        public async Task<Post> CreatePost(IFormCollection form, User user)
+        public async Task<Post> CreatePost(IFormCollection form, string userName)
         {
+            var user = await userManager.FindByNameAsync(userName);
+
             Post post = new Post();
 
             post.Description = form["description"];
@@ -39,22 +45,48 @@ namespace YourChoice.Api.Services.Implementation
             post.UserId = user.Id;
 
             List<PostPart> postParts = new List<PostPart>();
+
             List<Task<(string, string)>> tasks = new List<Task<(string, string)>>();
             var files = form.Files;
 
             post.Size = files.Count - 1;
 
-            var streams = new List<(Stream, string)>();
+            /*            using(Stream stream = files[0].OpenReadStream())
+                        {
+                            await photoService.UploadPhoto(stream, "name");
+                        }*/
+
+            /*List<(string, string)> images = new List<(string, string)>();
             foreach (var file in files)
             {
-                streams.Add((file.OpenReadStream(), file.FileName));
-            }
+                using(var stream = file.OpenReadStream())
+                {
+                 //   var d = await photoService.UploadImageAsync(stream.ToString());
+                    var data = await photoService.UploadPhoto(stream, file.FileName);
+                    images.Add(data);
+                }
+            }*/
 
-            foreach (var (stream, name) in streams)
+            var streams = new StreamAndStringCollection();
+
+            // throw new Exception();
+            try
             {
-                tasks.Add(Task.Run<(string, string)>(() => photoService.UploadPhoto(stream, name)));
+                foreach (var file in files)
+                {
+                    streams.Add((file.OpenReadStream(), file.FileName));
+                }
+
+                foreach (var (stream, name) in streams)
+                {
+                    tasks.Add(Task.Run<(string, string)>(() => photoService.UploadPhoto(stream, name)));
+                }
+                await Task.WhenAll(tasks);
             }
-            await Task.WhenAll(tasks);
+            finally
+            {
+                streams.Dispose();
+            }
 
             var title = tasks[0].Result.Item2;
 
@@ -133,5 +165,15 @@ namespace YourChoice.Api.Services.Implementation
             return post;
         }
 
+    }
+    public class StreamAndStringCollection : Collection<(Stream,string)>, IDisposable
+    {
+        public void Dispose()
+        {
+            foreach (var item in Items)
+            {
+                item.Item1.Close();
+            }
+        }
     }
 }

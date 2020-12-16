@@ -13,7 +13,7 @@ namespace YourChoice.Api.Services.interfaces
     public interface IPostService
     {
 
-        public Task<Post> CreatePost(IFormCollection form, User user);
+        public Task<Post> CreatePost(IFormCollection form, string userName);
 
         public Task<PaginatedResult<PostGridRowDto>> GetPage(PagedRequest pagedRequest);
 

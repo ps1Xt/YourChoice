@@ -1,4 +1,4 @@
-import { GetToken } from "../../services/JwtService";
+import { GetToken } from "../../helpers/JwtService";
 import { baseUrl } from "../baseUrl";
 import { PostForView } from "./Models/PostForView";
 

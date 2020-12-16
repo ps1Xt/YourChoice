@@ -30,13 +30,10 @@ namespace YourChoice.Api.Controllers
 
             var toWhom = postOwnerDto.UserName;
 
-            var result = await subscriptionService.Subscribe(who, toWhom);
+            await subscriptionService.Subscribe(who, toWhom);
 
-            if (result == true)
-            {
-                await notificationService.SubscriptionNotify(who, toWhom);
+            await notificationService.SubscriptionNotify(toWhom, who);
 
-            }
 
             return NoContent();
 

@@ -1,5 +1,5 @@
 import config from "../../config";
-import { GetToken } from "../../services/JwtService";
+import { GetToken } from "../../helpers/JwtService";
 import { NewMessages } from "./Models/NewMessages";
 
 const baseUrl = config.API_URL;

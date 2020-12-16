@@ -45,6 +45,16 @@ namespace YourChoice.Api.Controllers
             return Ok(new { Result = result });
         }
 
+        [HttpGet("count")]
+        public async Task<IActionResult> GetCountOfNewMessages()
+        {
+            var userName = User.Identity.Name;
+
+            var number = await notificationService.getCountOfUnreadMessages(userName);
+
+            return Ok(new { Number = number });
+        }
+
 
     }
 }

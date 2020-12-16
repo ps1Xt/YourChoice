@@ -15,13 +15,13 @@ import { getMessages } from '../../api/notification/GetMessages';
 import { ErrorBox } from '../Common/ErrorBox';
 import { HubConnectionBuilder } from '@microsoft/signalr'
 import * as signalR from "@microsoft/signalr";
-import { GetToken } from '../../services/JwtService';
+import { GetToken } from '../../helpers/JwtService';
 import { getConnection } from '../../api/notification/GetConnection'
 import { useDispatch, useSelector } from 'react-redux';
 import CombinedStore from '../../store/CombinedStore';
-import { SignalRContext } from '../../App';
-import { readMessages } from '../../store/actions/_notification';
-
+import { SignalRContext } from '../../Context/SignalRContext'
+import { readMessages, setNewMessages } from '../../store/actions/_notification';
+import {readMessages as readMessagesApi} from '../../api/notification/ReadMessages'
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
@@ -73,9 +73,8 @@ export default function Notification() {
   const [error, setError] = useState(false)
   const dispatch = useDispatch();
   let newMessages = useSelector<CombinedStore, number>(
-    (s)=>s.notification.number
+    (s) => s.notification.number
   )
-   
 
   const handleToggle = async () => {
     setOpen((prevOpen) => !prevOpen);
@@ -108,10 +107,19 @@ export default function Notification() {
   }
 
   const readMessagesHandler = async () => {
-    await readMessages();
+    await readMessagesApi();
     dispatch(readMessages());
   }
+  const getNumberOfNewMessages = async () => {
+    try{
+      let number = await getCountOfNewMessages()
+      dispatch(setNewMessages({ number: number.number }))
+    }
+    catch{}
+    
+  }
   useEffect(() => {
+    getNumberOfNewMessages()
   }, [])
 
   const messageList = () => {
@@ -155,43 +163,41 @@ export default function Notification() {
 
   return (
     <div className={classes.root}>
-      <div>
-        <IconButton ref={anchorRef}
-          aria-controls={open ? 'menu-list-grow' : undefined}
-          aria-haspopup="true"
-          onClick={handleToggle}>
-          <Badge badgeContent={newMessages} color="secondary">
-            <NotificationsIcon color="primary"></NotificationsIcon>
-          </Badge >
-        </IconButton>
-        <Popper open={open} anchorEl={anchorRef.current} role={undefined} className={classes.popper} transition>
-          {({ TransitionProps, placement }) => (
-            <Grow
-              {...TransitionProps}
-              style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}
-            >
-              <Paper >
-                <ClickAwayListener onClickAway={handleClose}>
-                  <MenuList autoFocusItem={open} id="menu-list-grow" >
+      <IconButton ref={anchorRef}
+        aria-controls={open ? 'menu-list-grow' : undefined}
+        aria-haspopup="true"
+        onClick={handleToggle}>
+        <Badge badgeContent={newMessages} color="secondary">
+          <NotificationsIcon color="primary"></NotificationsIcon>
+        </Badge >
+      </IconButton>
+      <Popper open={open} anchorEl={anchorRef.current} role={undefined} className={classes.popper} transition>
+        {({ TransitionProps, placement }) => (
+          <Grow
+            {...TransitionProps}
+            style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}
+          >
+            <Paper >
+              <ClickAwayListener onClickAway={handleClose}>
+                <MenuList autoFocusItem={open} id="menu-list-grow" >
 
-                    <div>
-                      <Paper className={classes.paper} elevation={0}>
+                  <div>
+                    <Paper className={classes.paper} elevation={0}>
 
-                        <Scrollbars style={{ height: '300px' }}>
+                      <Scrollbars style={{ height: '300px' }}>
 
-                          {messageList()}
+                        {messageList()}
 
-                        </Scrollbars>
+                      </Scrollbars>
 
-                      </Paper>
-                    </div>
-                  </MenuList>
-                </ClickAwayListener>
-              </Paper>
-            </Grow>
-          )}
-        </Popper>
-      </div>
+                    </Paper>
+                  </div>
+                </MenuList>
+              </ClickAwayListener>
+            </Paper>
+          </Grow>
+        )}
+      </Popper>
     </div >
   )
 }

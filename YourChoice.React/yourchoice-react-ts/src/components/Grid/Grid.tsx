@@ -26,7 +26,7 @@ import { FilterLogicalOperators } from '../../api/grid/models/FilterLogicalOpera
 import { PaginatedResult } from '../../api/grid/models/PaginatedResult';
 import { Row } from '../../api/grid/models/Row';
 import { LoadGridData } from '../../api/grid/LoadGridData';
-import { DateToString } from '../../services/DateService';
+import { DateToString } from '../../helpers/DateService';
 import { ErrorBox } from '../Common/ErrorBox';
 
 const useStyles = makeStyles(() =>

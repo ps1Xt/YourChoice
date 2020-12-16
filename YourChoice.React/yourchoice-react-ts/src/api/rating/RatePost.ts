@@ -1,5 +1,5 @@
 import config from "../../config";
-import { GetToken } from "../../services/JwtService";
+import { GetToken } from "../../helpers/JwtService";
 import { AvgRating } from "./Models/AvgRating";
 
 const baseUrl = config.API_URL;

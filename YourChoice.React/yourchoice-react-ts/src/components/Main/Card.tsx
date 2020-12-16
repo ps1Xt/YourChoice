@@ -10,7 +10,7 @@ import Collapse from '@material-ui/core/Collapse';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import { DateToString } from '../../services/DateService';
+import { DateToString } from '../../helpers/DateService';
 import { PostCard } from '../../api/post/Models/PostCard';
 import { useHistory } from 'react-router-dom';
 const useStyles = makeStyles((theme) => ({

@@ -27,16 +27,16 @@ namespace YourChoice.Api.Controllers
 
         private readonly IMapper mapper;
 
-        private readonly UserManager<User> userManager;
-
         private readonly IPhotoService photoService;
 
-        public PostController(IPostService service, IMapper mapper, UserManager<User> userManager, IPhotoService photoService)
+        private readonly INotificationService notificationService;
+
+        public PostController(IPostService service, IMapper mapper, IPhotoService photoService, INotificationService notificationService)
         {
             this.service = service;
             this.mapper = mapper;
-            this.userManager = userManager;
             this.photoService = photoService;
+            this.notificationService = notificationService;
         }
         [HttpGet("{id}")]
         [ApiExceptionFilter]
@@ -96,12 +96,13 @@ namespace YourChoice.Api.Controllers
         public async Task<IActionResult> CreatePost()
         {
             var x = Request.Form;
-            User user = await userManager.FindByNameAsync(User.Identity.Name);
-            Post post = await service.CreatePost(Request.Form, user);
+            string userName = User.Identity.Name;
 
-            var result = mapper.Map<FullPostDto>(post);
+            Post post = await service.CreatePost(Request.Form, userName);
 
-            return CreatedAtAction(nameof(GetPost), new { id = post.Id }, result);
+            await notificationService.SubscribersNotify(userName);
+
+            return Ok(new { id = post.Id });
         }
 
 

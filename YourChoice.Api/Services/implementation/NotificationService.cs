@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using YourChoice.Api.Dtos.Post;
 using YourChoice.Api.Exceptions;
 using YourChoice.Api.Repositories.interfaces;
 using YourChoice.Api.Services.interfaces;
@@ -25,69 +26,119 @@ namespace YourChoice.Api.Services.implementation
             this.userManager = userManager;
         }
 
-        public async Task<Message> CommentNotify(int postId, string whoseComment)
+        public async Task<bool> CommentNotify(int postId, string whoseComment)
         {
 
             var post = await repository.GetById<Post>(postId);
 
             var userName = post.User.UserName;
+
+            if (whoseComment == userName)
+                return false;
 
             string title = "New Comment";
 
             string text = $"{whoseComment} left a comment";
 
-            return await Notify(title, text, userName);
+            return await NotifyUser(title, text, userName);
         }
 
-        public async Task<Message> FavoritesNotify(int postId, string whoLikedUserName)
+        public async Task<bool> FavoritesNotify(int postId, string whoAdded)
         {
+            
+
             var post = await repository.GetById<Post>(postId);
 
             var userName = post.User.UserName;
 
+            if (whoAdded == userName)
+                return false;
+
             string title = "Favorites";
 
-            string text = $"{whoLikedUserName} added your post to favorites";
+            string text = $"{whoAdded} added your post to favorites";
 
-            return await Notify(title, text, userName);
+            return await NotifyUser(title, text, userName);
         }
 
-        private async Task<Message> Notify(string title, string text, string userName)
+        public async Task<bool> RatingNotify(PostRatingDto postRatingDto, string whoRated)
         {
+            var post = await repository.GetById<Post>(postRatingDto.Id);
+
+            var userName = post.User.UserName;
+
+            if (whoRated == userName)
+                return false;
+
+            string title = "Rating";
+
+            string text = $"{whoRated} Rated your post by {postRatingDto.Value}";
+
+            return await NotifyUser(title, text, userName);
+        }
+
+        private async Task<bool> NotifyUser(string title, string text, string userName)
+        {
+            var user = await userManager.FindByNameAsync(userName);
+
             Message message = new Message();
 
-            message.User = await userManager.FindByNameAsync(userName);
+            message.User = user;
 
             message.Title = title;
 
             message.Text = text;
 
-            await repository.Add(message);
+            user.Messages.Add(message);
 
             await repository.SaveAll();
 
-            return message;
+            return true;
         }
 
-        public async Task<Message> SubscribersNotify(string userName, string whosePost)
+        private async Task<bool> NotifyUsers(string title, string text, List<User> users)
         {
+            Message message = new Message();
+
+            message.Title = title;
+
+            message.Text = text;
+
+            foreach (var user in users)
+            {
+                user.Messages.Add(message);
+            }
+
+            await repository.SaveAll();
+
+            return true;
+        }
+
+        public async Task<bool> SubscribersNotify(string userName)
+        {
+            var user = await userManager.FindByNameAsync(userName);
+
+            var users = user.Subscribers.Where(x => x.WhoId != user.Id).Where(x => x.Value == true).Select(x => x.Who).ToList();
+
             string title = "New Post";
 
-            string text = $"{whosePost} publicated a new post";
+            string text = $"{userName} publicated a new post";
 
-            return await Notify(title, text, userName);
+            return await NotifyUsers(title, text, users);
         }
 
       
 
-        public async Task<Message> SubscriptionNotify(string userName, string whoSubscribed)
+        public async Task<bool> SubscriptionNotify(string userName, string whoSubscribed)
         {
+            if (userName == whoSubscribed)
+                return false;
 
             string title = "New subscriber";
 
             string text = $"{whoSubscribed} subscribed to you";
 
-            return await Notify(title, text, userName);
+            return await NotifyUser(title, text, userName);
 
         }
 
@@ -104,7 +155,7 @@ namespace YourChoice.Api.Services.implementation
         {
             var user = await userManager.FindByNameAsync(userName);
 
-            var messages = user.Messages.Where(x => !x.IsRead);
+            var messages = user.Messages.Where(x => x.IsRead == false);
 
             foreach (var message in messages)
             {
@@ -116,5 +167,13 @@ namespace YourChoice.Api.Services.implementation
             return true;
         }
 
+        public async Task<int> getCountOfUnreadMessages(string userName)
+        {
+            var user = await userManager.FindByNameAsync(userName);
+
+            var unreadMessages = user.Messages.Count(x => x.IsRead == false);
+
+            return unreadMessages;
+        }
     }
 }

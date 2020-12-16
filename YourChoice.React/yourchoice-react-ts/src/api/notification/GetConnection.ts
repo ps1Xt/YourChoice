@@ -1,5 +1,5 @@
 import * as signalR from "@microsoft/signalr";
-import { GetToken } from '../../services/JwtService';
+import { GetToken } from '../../helpers/JwtService';
 import { HubConnectionBuilder } from '@microsoft/signalr'
 
 export const getConnection = () => {
