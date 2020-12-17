@@ -35,7 +35,7 @@ namespace YourChoice.Api.Controllers
             await notificationService.SubscriptionNotify(toWhom, who);
 
 
-            return NoContent();
+            return Ok(new { Result = true });
 
         }
 
@@ -49,7 +49,7 @@ namespace YourChoice.Api.Controllers
 
             await subscriptionService.UnSubscribe(who, toWhom);
 
-            return NoContent();
+            return Ok(new { Result = true });
 
         }
 

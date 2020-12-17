@@ -23,19 +23,14 @@ namespace YourChoice.Api.Controllers
     [ApiController]
     public class PostController : ControllerBase
     {
-        private readonly IPostService service;
+        private readonly IPostService postService;
 
-        private readonly IMapper mapper;
-
-        private readonly IPhotoService photoService;
 
         private readonly INotificationService notificationService;
 
-        public PostController(IPostService service, IMapper mapper, IPhotoService photoService, INotificationService notificationService)
+        public PostController(IPostService postService, INotificationService notificationService)
         {
-            this.service = service;
-            this.mapper = mapper;
-            this.photoService = photoService;
+            this.postService = postService;
             this.notificationService = notificationService;
         }
         [HttpGet("{id}")]
@@ -43,21 +38,16 @@ namespace YourChoice.Api.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetPost(int id)
         {
+            var userName = User.Identity.Name;
+            
+            var post = await postService.GetPost(id,userName);
 
-            var post = await service.GetPost(id);
-
-            var result = mapper.Map<FullPostDto>(post);
-
-            result.isInFavorites = post.Favorites.SingleOrDefault(x => x.User.UserName == User.Identity.Name)?.Value ?? false;
-
-            result.isSubscribed = post.User.Subscribers.SingleOrDefault(x => x.Who.UserName == User.Identity.Name)?.Value ?? false;
-
-            return Ok(result);
+            return Ok(post);
         }
         [HttpPost("PaginatedSearch")]
         public async Task<IActionResult> GetPagedPosts([FromBody] PagedRequest pagedRequest)
         {
-            var posts = await service.GetPage(pagedRequest);
+            var posts = await postService.GetPage(pagedRequest);
             return Ok(posts);
         }
 
@@ -65,7 +55,7 @@ namespace YourChoice.Api.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetMainPageHome(MainPageRequest mainPageRequest)
         {
-            var posts = await service.GetMainPageHome(mainPageRequest);
+            var posts = await postService.GetMainPageHome(mainPageRequest);
             return Ok(posts);
         }
         [HttpPost("MainPage/Subscriptions")]
@@ -73,21 +63,21 @@ namespace YourChoice.Api.Controllers
         {
             var userName = User.Identity.Name;
 
-            var posts = await service.GetMainPageSubscriptions(mainPageRequest, userName);
+            var posts = await postService.GetMainPageSubscriptions(mainPageRequest, userName);
             return Ok(posts);
         }
         [HttpPost("MainPage/Favorites")]
         public async Task<IActionResult> GetMainPageFavorites(MainPageRequest mainPageRequest)
         {
             var userName = User.Identity.Name;
-            var posts = await service.GetMainPageFavorites(mainPageRequest, userName);
+            var posts = await postService.GetMainPageFavorites(mainPageRequest, userName);
             return Ok(posts);
         }
         [HttpPost("MainPage/MyPosts")]
         public async Task<IActionResult> GetMainPageMyPosts(MainPageRequest mainPageRequest)
         {
             var userName = User.Identity.Name;
-            var posts = await service.GetMainPageMyPosts(mainPageRequest, userName);
+            var posts = await postService.GetMainPageMyPosts(mainPageRequest, userName);
             return Ok(posts);
         }
 
@@ -95,10 +85,9 @@ namespace YourChoice.Api.Controllers
         [ApiExceptionFilter]
         public async Task<IActionResult> CreatePost()
         {
-            var x = Request.Form;
             string userName = User.Identity.Name;
 
-            Post post = await service.CreatePost(Request.Form, userName);
+            Post post = await postService.CreatePost(Request.Form, userName);
 
             await notificationService.SubscribersNotify(userName);
 

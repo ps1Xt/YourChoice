@@ -9,9 +9,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using YourChoice.Api.Dtos.Post;
 using YourChoice.Api.Exceptions.Post;
-using YourChoice.Api.Infrastructure.Collections;
 using YourChoice.Api.Infrastructure.Models;
-using YourChoice.Api.Repositories.interfaces;
+using YourChoice.Api.Infrastructure.Streams;
+using YourChoice.Api.Repositories.Interfaces;
 using YourChoice.Api.Services.interfaces;
 using YourChoice.Domain;
 using YourChoice.Domain.Auth;
@@ -21,13 +21,13 @@ namespace YourChoice.Api.Services.Implementation
 {
     public class PostService : IPostService
     {
-        private readonly IRepository repository;
+        private readonly IPostRepository repository;
 
         private readonly IMapper mapper;
         private readonly IPhotoService photoService;
         private readonly UserManager<User> userManager;
 
-        public PostService(IRepository repository, IMapper mapper, IPhotoService photoService, UserManager<User> userManager)
+        public PostService(IPostRepository repository, IMapper mapper, IPhotoService photoService, UserManager<User> userManager)
         {
             this.repository = repository;
             this.mapper = mapper;
@@ -74,7 +74,7 @@ namespace YourChoice.Api.Services.Implementation
 
             post.Logo = logo;
 
-            var parts = tasks.Skip(1).Select(x=>x.Result).Select(x => new PostPart { Title = x.Item2, Link = x.Item1 }).ToList();
+            var parts = tasks.Skip(1).Select(x => x.Result).Select(x => new PostPart { Title = x.Item2, Link = x.Item1 }).ToList();
 
             post.PostParts = parts;
 
@@ -85,17 +85,16 @@ namespace YourChoice.Api.Services.Implementation
             return post;
         }
 
-        public async Task<PaginatedResult<PostCardDto>> GetMainPageFavorites(MainPageRequest pagedRequest, string userName)
+        public async Task<PaginatedResult<PostCardDto>> GetMainPageFavorites(PagedRequest pagedRequest, string userName)
         {
-            var user = (await repository.Find<User>(x => x.UserName == userName)).SingleOrDefault();
+            var user = await userManager.FindByNameAsync(userName);
 
-            var mainPage = await repository.GetPagedDataWithAdditionalPredicate<Post, PostCardDto>
-               (pagedRequest, x => x.Favorites.Where(x => x.Value == true).Select(x => x.UserId).Contains(user.Id));
+            var mainPage = await repository.GetMainPageFavorites(pagedRequest, user.Id);
 
             return mainPage;
         }
 
-        public async Task<PaginatedResult<PostCardDto>> GetMainPageHome(MainPageRequest pagedRequest)
+        public async Task<PaginatedResult<PostCardDto>> GetMainPageHome(PagedRequest pagedRequest)
         {
 
             var mainPage = await repository.GetPagedData<Post, PostCardDto>(pagedRequest);
@@ -103,27 +102,24 @@ namespace YourChoice.Api.Services.Implementation
             return mainPage;
         }
 
-        public async Task<PaginatedResult<PostCardDto>> GetMainPageMyPosts(MainPageRequest pagedRequest, string userName)
+        public async Task<PaginatedResult<PostCardDto>> GetMainPageMyPosts(PagedRequest pagedRequest, string userName)
         {
-            var user = (await repository.Find<User>(x => x.UserName == userName)).SingleOrDefault();
 
-            var mainPage = await repository.GetPagedDataWithAdditionalPredicate<Post, PostCardDto>
-               (pagedRequest, x => x.UserId == user.Id);
+            var mainPage = await repository.GetMainPageMyPosts(pagedRequest, userName);
 
             return mainPage;
         }
 
-        public async Task<PaginatedResult<PostCardDto>> GetMainPageSubscriptions(MainPageRequest pagedRequest, string userName)
+        public async Task<PaginatedResult<PostCardDto>> GetMainPageSubscriptions(PagedRequest pagedRequest, string userName)
         {
-            var user = (await repository.Find<User>(x => x.UserName == userName)).SingleOrDefault();
+            var user = await userManager.FindByNameAsync(userName);
 
-            var mainPage = await repository.GetPagedDataWithAdditionalPredicate<Post, PostCardDto>
-                (pagedRequest, x => x.User.Subscribers.Where(x => x.Value == true).Select(x => x.WhoId).Any(y => y == user.Id));
+            var mainPage = await repository.GetMainPageSubscriptions(pagedRequest, user.Id);
 
             return mainPage;
         }
 
-        
+
         public async Task<PaginatedResult<PostGridRowDto>> GetPage(PagedRequest pagedRequest)
         {
             var pagedPosts = await repository.GetPagedData<Post, PostGridRowDto>(pagedRequest);
@@ -131,7 +127,7 @@ namespace YourChoice.Api.Services.Implementation
             return pagedPosts;
         }
 
-        public async Task<Post> GetPost(int id)
+        public async Task<FullPostDto> GetPost(int id, string userName)
         {
             var post = await repository.GetById<Post>(id);
 
@@ -140,9 +136,15 @@ namespace YourChoice.Api.Services.Implementation
                 throw new NotFoundException("Post not found");
             }
 
-            return post;
+            var resultPost = mapper.Map<FullPostDto>(post);
+
+            resultPost.isInFavorites = post.Favorites.SingleOrDefault(x => x.User.UserName == userName)?.Value ?? false;
+
+            resultPost.isSubscribed = post.User.Subscribers.SingleOrDefault(x => x.Who.UserName == userName)?.Value ?? false;
+
+            return resultPost;
         }
 
     }
-    
+
 }

@@ -17,15 +17,15 @@ namespace YourChoice.Api.Services.interfaces
 
         public Task<PaginatedResult<PostGridRowDto>> GetPage(PagedRequest pagedRequest);
 
-        public Task<PaginatedResult<PostCardDto>> GetMainPageHome(MainPageRequest pagedRequest);
+        public Task<PaginatedResult<PostCardDto>> GetMainPageHome(PagedRequest pagedRequest);
 
-        public Task<PaginatedResult<PostCardDto>> GetMainPageSubscriptions(MainPageRequest pagedRequest, string userName);
+        public Task<PaginatedResult<PostCardDto>> GetMainPageSubscriptions(PagedRequest pagedRequest, string userName);
 
-        public Task<PaginatedResult<PostCardDto>> GetMainPageFavorites(MainPageRequest pagedRequest, string userName);
+        public Task<PaginatedResult<PostCardDto>> GetMainPageFavorites(PagedRequest pagedRequest, string userName);
 
-        public Task<PaginatedResult<PostCardDto>> GetMainPageMyPosts(MainPageRequest pagedRequest, string userName);
+        public Task<PaginatedResult<PostCardDto>> GetMainPageMyPosts(PagedRequest pagedRequest, string userName);
 
-        public Task<Post> GetPost(int id);
+        public Task<FullPostDto> GetPost(int id, string userName);
 
     }
 }

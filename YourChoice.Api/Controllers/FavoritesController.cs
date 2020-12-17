@@ -44,7 +44,7 @@ namespace YourChoice.Api.Controllers
 
             var postId = postIdDto.Id;
 
-            var result = await favoriteService.RemoveFromFavorites(postId, userName);
+            await favoriteService.RemoveFromFavorites(postId, userName);
 
             return Ok(new { Result = true });
         }

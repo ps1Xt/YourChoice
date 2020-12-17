@@ -199,7 +199,6 @@ export const Post = (props: any) => {
     const rateHandler = async (value: number) => {
         if (value != null) {
             try {
-                console.log("qwee")
                 let result = await ratePost(post.id, value);
                 context.RatingNotify(post.id)
                 setPost({ ...post, avgRating: result.avgRating })

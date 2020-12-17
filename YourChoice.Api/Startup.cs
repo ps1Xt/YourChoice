@@ -19,7 +19,7 @@ using YourChoice.Api.Hubs.Providers;
 using YourChoice.Api.Infrastructure.Extensions;
 using YourChoice.Api.Mappings;
 using YourChoice.Api.Repositories.Implementation;
-using YourChoice.Api.Repositories.interfaces;
+using YourChoice.Api.Repositories.Interfaces;
 using YourChoice.Api.Services.implementation;
 using YourChoice.Api.Services.Implementation;
 using YourChoice.Api.Services.interfaces;
@@ -64,6 +64,8 @@ namespace YourChoice.Api
             services.AddScoped<ISubscriptionService, SubscriptionService>();
             services.AddScoped<IRatingService, RatingService>();
             services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<IPostRepository, PostRepository>();
+            services.AddScoped<IMessageRepository, MessageRepository>();
             services.AddSignalR();
             services.AddSingleton<IUserIdProvider, NameUserIdProvider>();
             services.AddCors(options =>

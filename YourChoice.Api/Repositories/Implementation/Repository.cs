@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using YourChoice.Api.Database;
 using YourChoice.Domain;
-using YourChoice.Api.Repositories.interfaces;
+using YourChoice.Api.Repositories.Interfaces;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Linq.Expressions;
@@ -18,7 +18,7 @@ namespace YourChoice.Api.Repositories.Implementation
     public class Repository : IRepository
     {
         protected readonly DataBaseContext context;
-        private readonly IMapper mapper;
+        protected readonly IMapper mapper;
 
         public Repository(DataBaseContext context, IMapper mapper)
         {
@@ -34,12 +34,6 @@ namespace YourChoice.Api.Repositories.Implementation
         public async Task<IEnumerable<TEntity>> GetAll<TEntity>() where TEntity : class
         {
             return await context.Set<TEntity>().ToListAsync();
-        }
-
-        public async Task<IEnumerable<TEntity>> Find<TEntity>(Expression<Func<TEntity, bool>> predicate)
-         where TEntity : class
-        {
-            return await context.Set<TEntity>().Where(predicate).ToListAsync();
         }
 
         public async Task<TEntity> Add<TEntity>(TEntity entity) where TEntity : class
@@ -83,29 +77,8 @@ namespace YourChoice.Api.Repositories.Implementation
 
             return await context.Set<TEntity>().CreatePaginatedResultAsync<TEntity, TDto>(pagedRequest, mapper);
         }
-        //Delete
-/*        public async Task<List<Post>> Test(string userName)
-        {
-            var user = await context.Users.FirstOrDefaultAsync(x => x.UserName == userName);
 
-            var x = await context.Posts.Where(x => user.Subscriptions.Select(x => x.ToWhomId).Any(y => y == x.UserId));
-
-            return x;
-        }*/
-
-        public async Task<PaginatedResult<TDto>> GetPagedDataWithAdditionalPredicate<TEntity, TDto>(PagedRequest pagedRequest, Expression<Func<TEntity,bool>> additionalPredicate)
-            where TEntity : class
-            where TDto : class
-        {
-            var data = context.Set<TEntity>().Where(additionalPredicate);
-
-            var x = await data.CreatePaginatedResultAsync<TEntity, TDto>(pagedRequest, mapper);
-          //  var user = await context.Users.FirstOrDefaultAsync(x => x.UserName == userName);
-
-          //  var x = await context.Posts.Where(x => user.Subscriptions.Select(x => x.ToWhomId).Any(y => y == x.UserId)).ToListAsync();
-
-            return x;
-        }
+        
 
     }
 }

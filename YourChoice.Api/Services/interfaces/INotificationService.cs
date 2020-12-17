@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using YourChoice.Api.Dtos.Message;
 using YourChoice.Api.Dtos.Post;
 using YourChoice.Domain;
 
@@ -17,11 +18,11 @@ namespace YourChoice.Api.Services.interfaces
 
         public Task<bool> SubscriptionNotify(string userName, string whoSubscribed);
 
-        public Task<int> getCountOfUnreadMessages(string userName);
+        public Task<int> GetCountOfUnreadMessages(string userName);
 
         public Task<bool> RatingNotify(PostRatingDto postRatingDto, string whoRated);
 
-        public Task<List<Message>> GetMessages(string userName);
+        public Task<List<MessageDto>> GetMessages(string userName);
 
         public Task<bool> ReadMessages(string userName);
     }

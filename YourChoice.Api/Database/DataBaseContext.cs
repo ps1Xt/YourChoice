@@ -5,10 +5,9 @@ using Microsoft.EntityFrameworkCore;
 using YourChoice.Domain;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using YourChoice.Api.Database.configuration;
 using YourChoice.Domain.Auth;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-
+using YourChoice.Domain.EFMaping;
 namespace YourChoice.Api.Database
 {
     public class DataBaseContext : IdentityDbContext<User, Role, int, UserClaim, UserRole, UserLogin, RoleClaim, UserToken>
@@ -29,14 +28,8 @@ namespace YourChoice.Api.Database
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.ApplyConfiguration(new SubscriptionConfiguration());
-            modelBuilder.ApplyConfiguration(new PostConfiguration());
-            modelBuilder.ApplyConfiguration(new PostPartConfiguration());
-            modelBuilder.ApplyConfiguration(new CommentConfiguration());
-            modelBuilder.ApplyConfiguration(new MessageConfiguration());
-            modelBuilder.ApplyConfiguration(new UserConfiguration());
-            modelBuilder.ApplyConfiguration(new FavoritesConfiguration());
-            modelBuilder.ApplyConfiguration(new RatingConfiguration());
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(SubscriptionConfiguration).Assembly);
+            
 
         }
         

@@ -28,6 +28,8 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "YourChoice.React", "YourCho
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YourChoice.Domain", "YourChoice.Domain\YourChoice.Domain.csproj", "{14659674-CA71-4FFB-A2F9-94A0B9DE028E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YourChoice.Domain.EFMaping", "YourChoice.Domain.EFMaping\YourChoice.Domain.EFMaping.csproj", "{1001C649-3257-4D10-AD39-D8ABB64F5026}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,6 +48,10 @@ Global
 		{14659674-CA71-4FFB-A2F9-94A0B9DE028E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{14659674-CA71-4FFB-A2F9-94A0B9DE028E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{14659674-CA71-4FFB-A2F9-94A0B9DE028E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1001C649-3257-4D10-AD39-D8ABB64F5026}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1001C649-3257-4D10-AD39-D8ABB64F5026}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1001C649-3257-4D10-AD39-D8ABB64F5026}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1001C649-3257-4D10-AD39-D8ABB64F5026}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

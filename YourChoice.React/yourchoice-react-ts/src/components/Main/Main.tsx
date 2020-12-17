@@ -53,7 +53,7 @@ export function Main() {
     })
   }
   const calcTotalPages = (total: number, size: number): number => {
-    var result = Math.ceil(total / size) //+ (total % size ? 1 : 0)
+    var result = Math.ceil(total / size) 
     return result
   }
   const loadDataHandler = async () => {

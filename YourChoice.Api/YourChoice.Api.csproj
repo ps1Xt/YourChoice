@@ -24,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\YourChoice.Domain.EFMaping\YourChoice.Domain.EFMaping.csproj" />
     <ProjectReference Include="..\YourChoice.Domain\YourChoice.Domain.csproj" />
   </ItemGroup>
 

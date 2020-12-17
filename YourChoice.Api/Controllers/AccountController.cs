@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using YourChoice.Api.Dtos.User;
+using YourChoice.Api.Exceptions;
 using YourChoice.Api.Infrastructure.Configurations;
 using YourChoice.Api.Services.interfaces;
 using YourChoice.Domain.Auth;
@@ -22,20 +23,19 @@ namespace YourChoice.Api.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IAccountService accountService;
-        private readonly INotificationService notificationService;
 
-        public AccountController(IAccountService accountService, INotificationService notificationService)
+        public AccountController(IAccountService accountService)
         {
             this.accountService = accountService;
-            this.notificationService = notificationService;
         }
 
         [AllowAnonymous]
         [HttpPost("login")]
+        [ApiExceptionFilter]
         public async Task<IActionResult> Login(UserLoginDto user)
         {
 
-            var checkingPasswordResult = await accountService.checkUserPassword(user.UserName, user.Password);
+            var checkingPasswordResult = await accountService.CheckUserPassword(user.UserName, user.Password);
 
             if (checkingPasswordResult.Succeeded)
             {

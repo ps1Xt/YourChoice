@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace YourChoice.Api.Infrastructure.Collections
+namespace YourChoice.Api.Infrastructure.Streams
 {
     public class StreamAndStringCollection : Collection<(Stream, string)>, IDisposable
     {

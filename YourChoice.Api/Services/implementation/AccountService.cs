@@ -29,7 +29,7 @@ namespace YourChoice.Api.Services.implementation
             this.userManager = userManager;
         }
 
-        public async Task<SignInResult> checkUserPassword(string userName, string password)
+        public async Task<SignInResult> CheckUserPassword(string userName, string password)
         {
             return await signInManager.PasswordSignInAsync(userName, password, false, false);
         }

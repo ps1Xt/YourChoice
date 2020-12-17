@@ -28,9 +28,7 @@ namespace YourChoice.Api.Controllers
         {
             var messages = await notificationService.GetMessages(User.Identity.Name);
 
-            var result = mapper.Map<List<MessageDto>>(messages);
-
-            return Ok(result);
+            return Ok(messages);
 
         }
 
@@ -50,7 +48,7 @@ namespace YourChoice.Api.Controllers
         {
             var userName = User.Identity.Name;
 
-            var number = await notificationService.getCountOfUnreadMessages(userName);
+            var number = await notificationService.GetCountOfUnreadMessages(userName);
 
             return Ok(new { Number = number });
         }

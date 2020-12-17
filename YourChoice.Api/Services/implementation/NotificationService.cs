@@ -4,9 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using YourChoice.Api.Dtos.Message;
 using YourChoice.Api.Dtos.Post;
 using YourChoice.Api.Exceptions;
-using YourChoice.Api.Repositories.interfaces;
+using YourChoice.Api.Repositories.Interfaces;
 using YourChoice.Api.Services.interfaces;
 using YourChoice.Domain;
 using YourChoice.Domain.Auth;
@@ -18,12 +19,14 @@ namespace YourChoice.Api.Services.implementation
         private readonly IRepository repository;
         private readonly IMapper mapper;
         private readonly UserManager<User> userManager;
+        private readonly IMessageRepository messageRepository;
 
-        public NotificationService(IRepository repository, IMapper mapper, UserManager<User> userManager)
+        public NotificationService(IRepository repository, IMapper mapper, UserManager<User> userManager, IMessageRepository messageRepository)
         {
             this.repository = repository;
             this.mapper = mapper;
             this.userManager = userManager;
+            this.messageRepository = messageRepository;
         }
 
         public async Task<bool> CommentNotify(int postId, string whoseComment)
@@ -142,12 +145,15 @@ namespace YourChoice.Api.Services.implementation
 
         }
 
-        public async Task<List<Message>> GetMessages(string userName)
+        public async Task<List<MessageDto>> GetMessages(string userName)
         {
             var user = await userManager.FindByNameAsync(userName);
-            var messages = await repository.Find<Message>(x => x.UserId == user.Id && x.Date.AddDays(-1) < DateTime.Now);
 
-            return messages.Reverse().ToList();
+            var messages = messageRepository.GetLastMessages(user.Id);
+
+            var resultMessages = mapper.Map<List<MessageDto>>(messages);
+
+            return resultMessages;
         }
 
 
@@ -167,7 +173,7 @@ namespace YourChoice.Api.Services.implementation
             return true;
         }
 
-        public async Task<int> getCountOfUnreadMessages(string userName)
+        public async Task<int> GetCountOfUnreadMessages(string userName)
         {
             var user = await userManager.FindByNameAsync(userName);
 

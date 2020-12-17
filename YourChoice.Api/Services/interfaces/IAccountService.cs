@@ -9,7 +9,7 @@ namespace YourChoice.Api.Services.interfaces
 {
     public interface IAccountService
     {
-        public Task<SignInResult> checkUserPassword(string userName, string password);
+        public Task<SignInResult> CheckUserPassword(string userName, string password);
 
         public Task<string> GenerateJwt(string userName);
 

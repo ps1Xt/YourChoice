@@ -17,14 +17,12 @@ namespace YourChoice.Api.Controllers
     public class CommentController : ControllerBase
     {
         private readonly ICommentService commentService;
-        private readonly IMapper mapper;
         private readonly INotificationService notificationService;
 
-        public CommentController(ICommentService commentService, IMapper mapper,
+        public CommentController(ICommentService commentService,
             INotificationService notificationService)
         {
             this.commentService = commentService;
-            this.mapper = mapper;
             this.notificationService = notificationService;
         }
 
@@ -33,9 +31,7 @@ namespace YourChoice.Api.Controllers
         {
             var comment = await commentService.GetComment(id);
 
-            var result = mapper.Map<CommentDto>(comment);
-
-            return Ok(result);
+            return Ok(comment);
         }
 
         [HttpPost]
@@ -47,11 +43,9 @@ namespace YourChoice.Api.Controllers
 
             var postId = commentDto.PostId;
 
-            var result = mapper.Map<CommentDto>(comment);
-
             await notificationService.CommentNotify(postId, userName);
 
-            return CreatedAtAction(nameof(GetComment), new { id = comment.Id }, result);
+            return CreatedAtAction(nameof(GetComment), new { id = comment.Id }, comment);
         }
     }
 }

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using YourChoice.Api.Dtos.Message;
-using YourChoice.Api.Repositories.interfaces;
+using YourChoice.Api.Repositories.Interfaces;
 using YourChoice.Domain;
 using YourChoice.Domain.Auth;
 
